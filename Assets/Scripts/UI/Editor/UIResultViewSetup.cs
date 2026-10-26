@@ -52,6 +52,7 @@ public static class UIResultViewSetup
         {
             string id=(string)row[0],sprite=(string)row[1];var xy=row[2].ToObject<float[]>();
             var rt=Group(root,id,xy[2],xy[3]);Place(rt,xy);var im=rt.gameObject.AddComponent<Image>();im.sprite=sprites[sprite];im.raycastTarget=false;FloralSliceAssets.Decorate(im,"result",sprite);
+            if(id=="coin")p.coinIcon=rt.gameObject;
             if(id=="primary"||id=="retry"||id=="home")
             {
                 im.raycastTarget=true;var b=rt.gameObject.AddComponent<Button>();b.targetGraphic=im;
@@ -67,11 +68,20 @@ public static class UIResultViewSetup
             string action=id.EndsWith("_label")?id.Substring(0,id.Length-6):"";
             RectTransform target=root;
             if(actions.ContainsKey(action)){target=actions[action];xy[0]-=boxes[action][0];xy[1]-=boxes[action][1];}
+            if(id=="coins_label") text="总金币";
             var t=Label(target,id,text,xy,sz,color);
+            if(id=="coins_label")p.rewardLabel=t;
             if(id=="title")p.title=t;if(id=="score")p.score=t;if(id=="coins")p.coins=t;
             if((win&&id=="primary_label")||(!win&&id=="retry_label"))p.retryLabel=t;
         }
         p.status=Label(root,"Status","",new float[]{75,win?1200:1270,600,40},25,"cream");
+        p.breakdown=Label(root,"RewardBreakdown","",new float[]{75,win?760:788,600,36},26,"cocoa");
+        // The original result font is a tiny subset without the new reward/combo glyphs.
+        var rewardFont=AssetDatabase.LoadAssetAtPath<Font>("Assets/GameRes/Fonts/HuayangBattle-SC-Medium.otf");
+        p.breakdown.font=rewardFont;
+        p.status.font=rewardFont;
+        foreach(var label in root.GetComponentsInChildren<Text>(true))
+            if(label.name=="coins_label") label.font=rewardFont;
         return p;
     }
     static RectTransform Group(Transform p,string name,float w,float h)

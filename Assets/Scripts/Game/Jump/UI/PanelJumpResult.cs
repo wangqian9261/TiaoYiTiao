@@ -9,7 +9,8 @@ public class PanelJumpResult : UIPanel
     [Serializable] public class Presentation
     {
         public GameObject root;
-        public Text title, score, coins, status, retryLabel;
+        public Text title, score, coins, status, retryLabel, breakdown, rewardLabel;
+        public GameObject coinIcon;
         public Button retry, home, revive;
     }
     public Presentation victory, defeat;
@@ -54,10 +55,19 @@ public class PanelJumpResult : UIPanel
         reviveBtn.gameObject.SetActive(!cleared);
         titleText.text = cleared ? "关卡完成" : "挑战失败";
         scoreText.text = Mathf.Max(0, args?.Score ?? 0).ToString();
-        coinsText.text = "+" + Mathf.Max(0, args?.CoinsGained ?? 0);
+        coinsText.text = cleared ? "+" + Mathf.Max(0, args?.CoinsGained ?? 0) : Mathf.Max(0, args?.MaxCombo ?? 0).ToString();
+        if (_shown.rewardLabel != null) _shown.rewardLabel.text = cleared ? "总金币" : "最高连跳";
+        if (_shown.coinIcon != null) _shown.coinIcon.SetActive(cleared);
+        if (_shown.breakdown != null)
+        {
+            _shown.breakdown.gameObject.SetActive(cleared);
+            _shown.breakdown.text = cleared
+                ? $"基础奖励 {args.BaseCoins}  ·  连跳加成 +{args.ComboCoins}"
+                : "";
+        }
         bool finalLevel = cleared && (args?.LevelId ?? 0) > 0 && string.IsNullOrEmpty(args.NextLevelName);
         _shown.retryLabel.text = cleared ? (finalLevel ? "再次挑战" : "下一关") : "重新开始";
-        _shown.status.text = finalLevel ? "全部通关" : "";
+        _shown.status.text = cleared ? $"{(finalLevel ? "全部通关 · " : "")}最高完美连跳 {args.MaxCombo}" : "未通关不发金币";
         SetActions(true);
         // Page routing is unchanged, but the result must render and intercept above the Top-layer HUD.
         if (Application.isPlaying && overlayCanvas != null)
@@ -127,7 +137,7 @@ public class PanelJumpResult : UIPanel
         if (_actionBusy || !isActiveAndEnabled) return;
         var game = JumpGame.Instance;
         if (game == null) { _shown.status.text = "请稍后再试"; return; }
-        if (!PlayerMgr.Instance.SpendEnergy(1))
+        if (game.Plan?.IsPlaytest != true && !PlayerMgr.Instance.SpendEnergy(1))
         {
             _shown.status.text = "体力不足，请稍后再试";
             WeChatService.Vibrate(false);

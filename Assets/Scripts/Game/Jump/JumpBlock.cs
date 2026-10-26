@@ -1,173 +1,172 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 跳一跳方块：方块浮台（block_giftbox 礼盒模型，顶面 = y=0）+ 可选砖上物品/陷阱标记（静置 3D 模型贴块顶正中心摆放）。
-/// 物品=停留 1.5s 自动触发；陷阱=落地即触发（预警外观：纯色染色/半透明覆盖贴图）。池化复用（IPoolable）。
-/// 染色规则：普通块显示模型自带贴图（波点/装饰原样）；终点金/陷阱警戒色/幻影半透明用纯色材质覆盖（玩法信号）。
-/// 结构：Root(本组件) / CloudRoot(浮台容器，沿用历史名——外部逻辑引用) / ItemRoot(标记容器，物品与陷阱互斥共用)。
-/// 落点判定仍是 Size×Size 的 y=0 顶面；Setup 按 Size 整体缩放 CloudRoot。
-/// </summary>
+/// <summary>Poolable platform; surface geometry communicates one tile rule without floating props.</summary>
 public class JumpBlock : MonoBehaviour, IPoolable
 {
     public Transform CloudRoot;
-    public Renderer[] CloudRenderers; // 浮台渲染器：贴图态还原模型材质 / 纯色态共享一块实例材质
-    public Transform ItemRoot;        // 物品/陷阱标记容器（静置摆放，无浮动/自转）
-    public GameObject platformPrefab; // 浮台平台模型（编辑器工具接线；引用缺失兜底重建用）
-
+    public Renderer[] CloudRenderers;
+    public GameObject platformPrefab;
     public int Index;
-    public float Size;                  // 顶面边长（x/z 同尺寸）
-    public JumpItemKind ItemKind;       // 本砖携带的物品（None=无）
-    public JumpTrapKind TrapKind;       // 本砖携带的陷阱（None=无；与物品互斥）
-    public bool ItemConsumed;           // 物品是否已被触发收取
-    public bool TrapConsumed;           // 陷阱是否已触发
+    public float Size;
+    public TileKind Kind;
+    public int EffectLevelId;
+    public Vector3 TopCenter => new Vector3(transform.position.x, 0, transform.position.z);
+    private Material _surfaceMat, _lineMat;
+    private Material[][] _originalMats;
+    private Transform _surface;
+    private LineRenderer _path;
+    private readonly List<LineRenderer> _marks = new List<LineRenderer>();
+    private Vector3 _direction;
+    private float _phase;
+    private Color _baseColor;
 
-    /// <summary>顶面中心（y=0 平面）</summary>
-    public Vector3 TopCenter => new Vector3(transform.position.x, 0f, transform.position.z);
-
-    private Material _cloudMat;      // 特殊块覆盖材质（终点金/陷阱色/幻影半透明；池化复用）
-    private bool _cloudMatTransparent;
-    private Material[] _originalMats; // 模型自带材质缓存（普通块贴图态；池化在纯色↔贴图间往返还原）
-
-    public void OnSpawn()
-    {
-    }
-
+    public void OnSpawn() { }
     public void OnDespawn()
     {
-        ClearItemModel();
-        ItemConsumed = false;
-        ItemKind = JumpItemKind.None;
-        TrapConsumed = false;
-        TrapKind = JumpTrapKind.None;
+        ClearMarks();
+        Kind = TileKind.Normal;
+        EffectLevelId = 0;
     }
 
-    /// <summary>布置方块浮台：整体缩放 / 材质（textured=普通块用模型自带贴图；否则纯色覆盖，phantom=半透明幻影预警）/ 标记容器归位</summary>
-    public void Setup(int index, float size, Color color, bool phantom = false, bool textured = false)
+    public void Setup(int index, float size, TileKind kind, int effectLevelId, Vector3 direction)
     {
-        Index = index;
-        Size = size;
-
-        if (CloudRoot == null || CloudRenderers == null || CloudRenderers.Length == 0 || ItemRoot == null)
+        Index = index; Size = size; Kind = kind; EffectLevelId = effectLevelId;
+        _direction = direction; _phase = 0;
+        BuildPlatform();
+        ClearMarks();
+        CloudRoot.gameObject.SetActive(true);
+        CloudRoot.localScale = Vector3.one * size;
+        if (_originalMats == null || _originalMats.Length != CloudRenderers.Length)
         {
-            // 池模板缺序列化引用（异常兜底/模板升级）时就地重建结构
-            BuildPlatform();
+            _originalMats = new Material[CloudRenderers.Length][];
+            for (int i = 0; i < CloudRenderers.Length; i++) _originalMats[i] = CloudRenderers[i].sharedMaterials;
         }
-
-        if (CloudRoot != null)
+        _baseColor = SpecialTiles.ColorOf(kind);
+        if (_surfaceMat == null) _surfaceMat = new Material(Shader.Find("Standard"));
+        _surfaceMat.color = _baseColor;
+        _surfaceMat.SetFloat("_Glossiness", kind == TileKind.Ice ? .92f : .25f);
+        _surfaceMat.SetFloat("_Metallic", kind == TileKind.Ice ? .12f : 0f);
+        for (int i = 0; i < CloudRenderers.Length; i++)
         {
-            // 塌陷过的块回收复用：云簇曾被隐藏/缩小，重用时恢复显示
-            if (!CloudRoot.gameObject.activeSelf) CloudRoot.gameObject.SetActive(true);
-            CloudRoot.localScale = Vector3.one * size;
-        }
-        if (ItemRoot != null)
-        {
-            // 标记静置：贴块顶摆放，不浮动不自转（每帧无动画开销）
-            ItemRoot.localPosition = new Vector3(0f, JumpConfig.ItemFloatHeight, 0f);
-            ItemRoot.localRotation = Quaternion.identity;
-        }
-
-        if (CloudRenderers != null && CloudRenderers.Length > 0)
-        {
-            if (textured && _originalMats != null && _originalMats.Length == CloudRenderers.Length)
-            {
-                // 普通块：还原模型自带贴图材质（波点/装饰原样展示；纯色块回收复用时由此恢复）
-                for (int i = 0; i < CloudRenderers.Length; i++) CloudRenderers[i].sharedMaterial = _originalMats[i];
-            }
+            if (kind == TileKind.Normal || kind == TileKind.Start) CloudRenderers[i].sharedMaterials = _originalMats[i];
             else
             {
-                // 特殊块（终点金/陷阱警戒色/幻影半透明）纯色覆盖（池化复用避免每块新建材质）
-                if (_cloudMat == null || _cloudMatTransparent != phantom)
-                {
-                    _cloudMat = phantom
-                        ? JumpMaterials.TransparentDiffuse(color, JumpConfig.PhantomAlpha)
-                        : JumpMaterials.Diffuse(color);
-                    _cloudMatTransparent = phantom;
-                }
-                else
-                {
-                    // 复用同形态材质：幻影须还原基线透明度（闪烁只改 alpha，Setup 重置）
-                    var c = color;
-                    if (phantom) c.a = JumpConfig.PhantomAlpha;
-                    _cloudMat.color = c;
-                }
-                for (int i = 0; i < CloudRenderers.Length; i++) CloudRenderers[i].sharedMaterial = _cloudMat;
+                var materials = new Material[_originalMats[i].Length];
+                for (int m = 0; m < materials.Length; m++) materials[m] = _surfaceMat;
+                CloudRenderers[i].sharedMaterials = materials;
             }
+        }
+        if (!SpecialTiles.IsSpecial(kind)) return;
+        _surface = new GameObject("TileSurface").transform;
+        _surface.SetParent(CloudRoot, false);
+        if (kind == TileKind.Ice)
+        {
+            // Contrasting white parallel glints move along the outgoing direction.
+            for (int i = 0; i < 3; i++)
+                Mark(new[] { new Vector3(-.32f + i * .30f, .045f, -.30f), new Vector3(-.22f + i * .30f, .045f, .22f) }, Color.white, .025f);
+        }
+        else if (kind == TileKind.Collapse)
+        {
+            Mark(new[] { new Vector3(-.43f,.045f,.12f), new Vector3(-.17f,.045f,.02f), new Vector3(.02f,.045f,.13f), new Vector3(.15f,.045f,-.13f), new Vector3(.43f,.045f,-.24f) }, new Color(.28f,.16f,.20f), .028f);
+            Mark(new[] { new Vector3(.02f,.045f,.13f), new Vector3(-.12f,.045f,.31f), new Vector3(-.08f,.045f,.44f) }, new Color(.28f,.16f,.20f), .025f);
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                float z = -.27f + i * .27f;
+                Mark(new[] {new Vector3(-.22f,.045f,z-.10f), new Vector3(0,.045f,z+.10f), new Vector3(.22f,.045f,z-.10f)}, Color.white, .04f);
+            }
+            _surface.localRotation = Quaternion.LookRotation(direction);
         }
     }
 
-    /// <summary>幻影闪烁预警（progress01 0→1）：透明度在基线与最低值间脉冲（塌陷倒计时驱动）</summary>
-    public void SetPhantomBlink(float progress01)
+    private void Mark(Vector3[] points, Color color, float width)
     {
-        if (_cloudMat == null) return;
-        float pulse = 0.5f + 0.5f * Mathf.Sin(progress01 * Mathf.PI * 10f);
-        var c = _cloudMat.color;
-        c.a = Mathf.Lerp(JumpConfig.PhantomAlpha, JumpConfig.PhantomBlinkAlphaMin, pulse);
-        _cloudMat.color = c;
+        var line = new GameObject("SurfaceMark").AddComponent<LineRenderer>();
+        line.transform.SetParent(_surface, false);
+        if (_lineMat == null) _lineMat = new Material(Shader.Find("Sprites/Default"));
+        line.sharedMaterial = _lineMat;
+        line.useWorldSpace = false; line.positionCount = points.Length; line.SetPositions(points);
+        line.startColor = line.endColor = color;
+        line.startWidth = line.endWidth = width;
+        line.numCornerVertices = 2; line.numCapVertices = 2;
+        _marks.Add(line);
     }
 
-    private static Material _sealGhostMat;
-
-    /// <summary>封印轮廓化：剩余物品模型换幽灵材质——保留轮廓、隐藏颜色与发光（实际奖励不变）</summary>
-    public void SealItemVisuals()
+    public void ShowSprintPath(Vector3[] points)
     {
-        if (ItemRoot == null) return;
-        if (_sealGhostMat == null)
-            _sealGhostMat = JumpMaterials.TransparentDiffuse(
-                new Color(0.12f, 0.11f, 0.14f), JumpConfig.SealGhostAlpha);
-        var renderers = ItemRoot.GetComponentsInChildren<MeshRenderer>();
-        for (int i = 0; i < renderers.Length; i++)
-            renderers[i].sharedMaterial = _sealGhostMat;
+        if (_path == null)
+        {
+            _path = new GameObject("SprintRoute").AddComponent<LineRenderer>();
+            _path.transform.SetParent(transform, false);
+        }
+        _path.gameObject.SetActive(true);
+        if (_lineMat == null) _lineMat = new Material(Shader.Find("Sprites/Default"));
+        _path.sharedMaterial = _lineMat; _path.useWorldSpace = true;
+        _path.positionCount = points.Length + 5;
+        for (int i = 0; i < points.Length; i++) _path.SetPosition(i, points[i] + Vector3.up * .07f);
+        var end = points[points.Length - 1] + Vector3.up * .07f;
+        Vector3[] box = {new Vector3(-.25f,0,-.25f),new Vector3(.25f,0,-.25f),new Vector3(.25f,0,.25f),new Vector3(-.25f,0,.25f),new Vector3(-.25f,0,-.25f)};
+        for (int i = 0; i < 5; i++) _path.SetPosition(points.Length + i, end + box[i]);
+        _path.startWidth = _path.endWidth = .035f;
+        _path.startColor = _path.endColor = new Color(.8f,.7f,1f,.65f);
     }
-
-    /// <summary>
-    /// 装配方块浮台：实例化 block_giftbox 模型并归一（footprint 1×1、顶面贴合 y=0、身体在下方）；
-    /// ItemRoot 为空容器（无几何）。platformPrefab 缺失的极端兜底：单位薄盒。
-    /// </summary>
+    public void SetPathVisible(bool visible) { if (_path != null) _path.gameObject.SetActive(visible); }
+    public void SetCollapseProgress(float progress)
+    {
+        float p = Mathf.Clamp01(progress);
+        float pulse = .5f + .5f * Mathf.Sin(p * Mathf.PI * (8 + EffectLevelId));
+        if (_surfaceMat != null) _surfaceMat.color = Color.Lerp(_baseColor, Color.white, pulse * .45f);
+        foreach (var mark in _marks) mark.widthMultiplier = 1 + p * 2;
+    }
+    public void Collapse() { CloudRoot.gameObject.SetActive(false); SetPathVisible(false); }
+    private void Update()
+    {
+        if (_surface == null || (Kind != TileKind.Ice && Kind != TileKind.Sprint)) return;
+        _phase += Time.deltaTime;
+        if (Kind == TileKind.Ice) _surface.localPosition = _direction * (Mathf.Repeat(_phase * .22f, .12f) - .06f);
+        else
+        {
+            float glow = .55f + .45f * Mathf.Sin(_phase * 5f);
+            foreach (var mark in _marks) mark.startColor = mark.endColor = new Color(1f, 1f, 1f, glow);
+            if (_path != null) _path.startColor = _path.endColor = new Color(.8f,.7f,1f, .4f + .4f * glow);
+        }
+    }
+    private void ClearMarks()
+    {
+        if (_surface != null) { _surface.gameObject.SetActive(false); Delete(_surface.gameObject); }
+        _surface = null; _marks.Clear(); SetPathVisible(false);
+    }
+    private static void Delete(Object value) { if (Application.isPlaying) Destroy(value); else DestroyImmediate(value); }
+    private void OnDestroy()
+    {
+        if (_surfaceMat != null) Delete(_surfaceMat);
+        if (_lineMat != null) Delete(_lineMat);
+    }
     public void BuildPlatform()
     {
-        if (CloudRoot == null)
+        if (CloudRoot != null) return;
+        CloudRoot = new GameObject("CloudRoot").transform;
+        CloudRoot.SetParent(transform, false);
+        GameObject model;
+        if (platformPrefab != null)
         {
-            var cloud = new GameObject("CloudRoot"); // 容器名沿用历史（外部逻辑引用）
-            cloud.transform.SetParent(transform, false);
-            CloudRoot = cloud.transform;
-
-            if (platformPrefab != null)
-            {
-                var platform = Instantiate(platformPrefab, CloudRoot, false);
-                platform.name = "Platform";
-                RemoveColliders(platform);
-                NormalizePlatform(platform.transform);
-                CloudRenderers = platform.GetComponentsInChildren<MeshRenderer>();
-                _originalMats = new Material[CloudRenderers.Length];
-                for (int i = 0; i < CloudRenderers.Length; i++) _originalMats[i] = CloudRenderers[i].sharedMaterial;
-            }
-            else
-            {
-                var box = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                box.name = "FallbackBox";
-                RemoveColliders(box);
-                box.transform.SetParent(CloudRoot, false);
-                box.transform.localScale = new Vector3(1f, 0.4f, 1f);
-                box.transform.localPosition = new Vector3(0f, -0.2f, 0f);
-                box.GetComponent<MeshRenderer>().sharedMaterial = JumpMaterials.Diffuse(Color.white);
-                CloudRenderers = new[] { box.GetComponent<MeshRenderer>() };
-                _originalMats = new[] { box.GetComponent<MeshRenderer>().sharedMaterial };
-            }
+            model = Instantiate(platformPrefab, CloudRoot, false);
+            NormalizePlatform(model.transform);
         }
-
-        if (ItemRoot == null)
+        else
         {
-            var item = new GameObject("ItemRoot");
-            item.transform.SetParent(transform, false);
-            item.transform.localPosition = new Vector3(0f, JumpConfig.ItemFloatHeight, 0f);
-            ItemRoot = item.transform;
+            model = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            model.transform.SetParent(CloudRoot, false);
+            model.transform.localScale = new Vector3(1, .4f, 1);
+            model.transform.localPosition = new Vector3(0, -.2f, 0);
         }
+        RemoveColliders(model);
+        CloudRenderers = model.GetComponentsInChildren<MeshRenderer>();
     }
 
-    /// <summary>
-    /// 浮台归一：footprint 缩放到 1×1（x/z 取大边）、几何居中、顶面贴合 y=0（落点面，身体在下方）。
-    /// 包围盒取世界坐标并以浮台根为原点换算（构建时容器位于方块原点，世界≈局部）。
-    /// </summary>
     private static void NormalizePlatform(Transform platform)
     {
         var renderers = platform.GetComponentsInChildren<MeshRenderer>();
@@ -186,36 +185,7 @@ public class JumpBlock : MonoBehaviour, IPoolable
             -relCenter.z * s);
     }
 
-    /// <summary>装载物品模型克隆（归一化到 ItemVisualSize 高、贴 ItemRoot 原点；prefab 缺席则静默无演出）</summary>
-    public void ShowItemModel(GameObject prefab)
-    {
-        ClearItemModel();
-        if (ItemRoot == null || prefab == null) return;
-        var model = Instantiate(prefab, ItemRoot, false);
-        model.name = "ItemModel";
-        JumpCharacter.Normalize(model.transform, JumpConfig.ItemVisualSize);
-    }
 
-    /// <summary>清空物品模型克隆（池化回收/收取时调用）</summary>
-    public void ClearItemModel()
-    {
-        if (ItemRoot == null) return;
-        for (int i = ItemRoot.childCount - 1; i >= 0; i--)
-        {
-            var child = ItemRoot.GetChild(i).gameObject;
-            if (Application.isPlaying) Destroy(child);
-            else DestroyImmediate(child);
-        }
-    }
-
-    /// <summary>物品触发：收走模型（撒花/音效/效果由调用方负责）</summary>
-    public void PlayItemCollect()
-    {
-        ItemConsumed = true;
-        ClearItemModel();
-    }
-
-    /// <summary>移除层级内全部碰撞体（模型自带碰撞体会干扰落点判定；编辑器构建与运行时双路径）</summary>
     private static void RemoveColliders(GameObject go)
     {
         var cols = go.GetComponentsInChildren<Collider>(true);
@@ -225,4 +195,5 @@ public class JumpBlock : MonoBehaviour, IPoolable
             else DestroyImmediate(cols[i]);
         }
     }
+
 }

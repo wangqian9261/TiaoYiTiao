@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3366781878
+CRC: 2977437088
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: ba625e1a03d5a07728a4957cb7ce2189
+    Hash: 91d8c8b5be339708a037a280efe1ef9e
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 8bb5d06d93ddf7b6003941d316004567
+    Hash: bd048f9369b6357c063eab77edbadb65
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: ba625e1a03d5a07728a4957cb7ce2189
+    Hash: 91d8c8b5be339708a037a280efe1ef9e
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -45,7 +45,7 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: bf6e7ddc33e6b4a0687088c029058e79, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: d674e378f18fc4de7a072b1ff747ece5, type: 3}
+  Script: {fileID: 11500000, guid: c2da9a42a0d2540028ecabf70486fc25, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 35d5ece45c87a4bd1a95371a9fbaf1a5, type: 3}
 - Class: 114
@@ -55,6 +55,8 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 6190d4978b98f4a309b2541e16e99690, type: 3}
@@ -63,11 +65,9 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 5c4a417d0a1e14266b6aa419290eec1e, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 122a6ea4db1c744949e989e76717eab1, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: e74b912450b9648cb99878a2691e44be, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: c2da9a42a0d2540028ecabf70486fc25, type: 3}
+  Script: {fileID: 11500000, guid: 122a6ea4db1c744949e989e76717eab1, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -87,6 +87,8 @@ SerializeReferenceClassIdentifiers:
   ClassName: PanelJumpResult/Presentation
 - AssemblyName: UnityEngine.CoreModule
   ClassName: UnityEngine.Events.PersistentCallGroup
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.RectOffset
 - AssemblyName: UnityEngine.UI
   ClassName: UnityEngine.UI.AnimationTriggers
 - AssemblyName: UnityEngine.UI
@@ -107,7 +109,6 @@ SerializeReferenceClassIdentifiers:
   ClassName: UnityEngine.UI.Toggle/ToggleEvent
 Assets:
 - Assets/GameRes/Prefabs/UIHomeView.prefab
-- Assets/GameRes/Prefabs/PanelLuckyWheel.prefab
 - Assets/GameRes/Prefabs/PanelBag.prefab
 - Assets/GameRes/Prefabs/Panel_JumpResult.prefab
 - Assets/GameRes/Prefabs/UILoadingView.prefab
@@ -117,10 +118,9 @@ Assets:
 - Assets/GameRes/Prefabs/PoolCube.prefab
 - Assets/GameRes/Prefabs/Panel_Home.prefab
 Dependencies:
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/fonts
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/resultui
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_home
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_levelui
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_loading
-- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_wheel
+- /Users/qian/.codex/worktrees/bedb/Game3D001/Assets/StreamingAssets/ab/fonts
+- /Users/qian/.codex/worktrees/bedb/Game3D001/Assets/StreamingAssets/ab/resultui
+- /Users/qian/.codex/worktrees/bedb/Game3D001/Assets/StreamingAssets/ab/texture
+- /Users/qian/.codex/worktrees/bedb/Game3D001/Assets/StreamingAssets/ab/texture_home
+- /Users/qian/.codex/worktrees/bedb/Game3D001/Assets/StreamingAssets/ab/texture_levelui
+- /Users/qian/.codex/worktrees/bedb/Game3D001/Assets/StreamingAssets/ab/texture_loading

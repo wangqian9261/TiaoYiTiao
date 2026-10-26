@@ -3,88 +3,16 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// 砖上物品 UI 资产一键生成（全幂等，可重复执行）：
-/// - WheelUI/1：GameRes/Prefabs/PanelLuckyWheel.prefab（Popup 层幸运转盘：压暗遮罩/盘面/指针/结果文案）
-/// - BagUI/1：GameRes/Prefabs/PanelBag.prefab（Popup 层背包：碎片大字计数 + 金币/积分/体力总览 + 合成预告）
-/// 转盘盘面切片在 GameRes/Texture/Wheel/lucky_wheel.png（AI 生成 5 色格，Sprite 已配置）；
-/// 指针为运行时程序化金三角（PanelLuckyWheel.OnCreate 生成 sprite），无需美术资产。
-/// 生成路径均在 GameRes 下：编辑器模拟加载与微信 AB 构建同构。
-/// </summary>
+/// <summary>局外背包资产生成；与特殊格局内玩法无关。</summary>
 public static class JumpItemUiSetup
 {
     private const string PrefabDir = "Assets/GameRes/Prefabs";
-    private const string WheelSpritePath = "Assets/GameRes/Texture/Wheel/lucky_wheel.png";
 
     // 深紫棕/奶白/金色文案（对齐主页与 HUD 既有配色）
     private static readonly Color CreamWhite = new Color(1f, 253f / 255f, 245f / 255f);
     private static readonly Color SoftBlue = new Color(0.72f, 0.78f, 0.92f);
     private static readonly Color Gold = new Color(1f, 0.85f, 0.35f);
     private static readonly Color DeepPlum = new Color(92f / 255f, 42f / 255f, 78f / 255f);
-
-    [MenuItem("WheelUI/1. Create Assets")]
-    public static void CreateWheel()
-    {
-        EnsureDir(PrefabDir);
-        AssetDatabase.Refresh();
-        var wheelSprite = AssetDatabase.LoadAssetAtPath<Sprite>(WheelSpritePath);
-        if (wheelSprite == null)
-        {
-            Debug.LogError($"[JumpItemUiSetup] 缺少转盘盘面切片 {WheelSpritePath}（先生成 lucky_wheel.png 后重跑）");
-            return;
-        }
-
-        string path = $"{PrefabDir}/PanelLuckyWheel.prefab";
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
-        {
-            var root = new GameObject("PanelLuckyWheel", typeof(RectTransform), typeof(Image), typeof(PanelLuckyWheel));
-            Stretch((RectTransform)root.transform);
-            var dim = root.GetComponent<Image>();
-            dim.color = new Color(0.04f, 0.05f, 0.10f, 0.75f); // 压暗世界，转盘期间模态
-            dim.raycastTarget = true;
-
-            var boardGo = new GameObject("PanelBoard", typeof(RectTransform), typeof(Image));
-            var board = (RectTransform)boardGo.transform;
-            board.SetParent(root.transform, false);
-            board.sizeDelta = new Vector2(760f, 1000f);
-            board.anchoredPosition = Vector2.zero;
-            boardGo.GetComponent<Image>().color = new Color(0.10f, 0.13f, 0.22f, 0.96f);
-
-            var title = AddText(board, "TitleText", "幸运转盘", new Vector2(0f, 430f), new Vector2(560f, 70f), 48, CreamWhite);
-            AddShadow(title);
-
-            var wheelGo = new GameObject("WheelImage", typeof(RectTransform), typeof(Image));
-            var wheel = (RectTransform)wheelGo.transform;
-            wheel.SetParent(board, false);
-            wheel.sizeDelta = new Vector2(640f, 640f);
-            wheel.anchoredPosition = new Vector2(0f, 60f);
-            var wheelImage = wheelGo.GetComponent<Image>();
-            wheelImage.sprite = wheelSprite;
-            wheelImage.raycastTarget = false;
-
-            var pointerGo = new GameObject("PointerImage", typeof(RectTransform), typeof(Image));
-            var pointer = (RectTransform)pointerGo.transform;
-            pointer.SetParent(board, false);
-            pointer.sizeDelta = new Vector2(72f, 72f);
-            pointer.anchoredPosition = new Vector2(0f, 390f); // 盘面顶部 12 点位（sprite 由脚本生成）
-            var pointerImage = pointerGo.GetComponent<Image>();
-            pointerImage.raycastTarget = false;
-
-            var result = AddText(board, "ResultText", "", new Vector2(0f, -390f), new Vector2(680f, 70f), 40, Gold);
-            AddShadow(result);
-
-            var panel = root.GetComponent<PanelLuckyWheel>();
-            panel.wheelRect = wheel;
-            panel.pointerImage = pointerImage;
-            panel.resultText = result;
-
-            SavePrefab(root, path);
-        }
-        else Debug.Log("[JumpItemUiSetup] PanelLuckyWheel 已存在，跳过（幂等）");
-
-        AssetDatabase.SaveAssets();
-        Debug.Log("[JumpItemUiSetup] 幸运转盘资产就绪");
-    }
 
     [MenuItem("BagUI/1. Create Assets")]
     public static void CreateBag()

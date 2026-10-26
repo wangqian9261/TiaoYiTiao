@@ -1,233 +1,111 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// 关卡校验器（策划案§8 发布阻断条件全集）：
-/// 格数越界 / 起终点数量 / 格子重叠 / 不可达与蓄力越界（150–1250ms，含震荡与理想落点链复核）/
-/// 特殊砖数量与公式不一致 / 连续陷阱 / 特殊砖禁区与上限 / 冲刺安全格不足 / 效果冲突与同格多类型 /
-/// 震荡偏移一致性与孤儿偏移 / 减速覆盖窗内反向。
-/// 警告项（不阻断）：预估通关时长 60–120s 之外、反向蓄力出口有效按压越界。
-/// 校验独立于生成器重新推导几何——不是生成结果的自说自话。
-/// </summary>
 public class LevelValidator : ILevelValidator
 {
-    private const float ChargeEpsilonMs = 1f;   // 浮点容差
-    private const float ShakeEpsilonM = 0.002f; // 2mm
-
-    public ValidationReport Validate(GeneratedLevel level, GlobalRewardConfig rewardConfig, GlobalTrapConfig trapConfig)
+    public static ValidationReport ValidateDefinition(LevelDefinition def, SpecialTileSettings effects)
     {
-        var report = new ValidationReport();
-        if (level?.Definition == null || level.Tiles == null || level.Tiles.Count == 0)
+        var r = effects != null ? effects.Validate() : new ValidationReport();
+        void Error(string code, string text) => r.Add(ValidationSeverity.Error, code, text);
+        if (effects == null) Error("effects.missing", "缺少特殊格参数快照");
+        if (def == null) { Error("definition.missing", "关卡定义为空"); return r; }
+        if (def.GridCount < 20 || def.GridCount > 60) Error("gridCount.range", "格数须为 20–60");
+        if (!Enum.IsDefined(typeof(DifficultyTier), def.Difficulty)) { Error("difficulty.range", "未知关卡难度"); return r; }
+        if (def.LevelId <= 0 || def.ChapterId <= 0 || def.OrderInChapter <= 0) Error("identity.range", "关卡、章节和顺序 ID 必须为正");
+        if (def.ThemeId < 0 || def.ThemeId >= JumpConfig.LevelThemeNames.Length) Error("theme.range", "未知主题");
+        var rules = def.SpecialRules ?? DifficultyProfiles.DefaultRules(def.Difficulty);
+        var seen = new HashSet<TileKind>();
+        long typeTotal = 0;
+        foreach (var rule in rules)
         {
-            report.Add(ValidationSeverity.Error, "level.empty", "关卡数据为空");
-            return report;
+            if (rule == null || !SpecialTiles.IsSpecial(rule.Kind) || !seen.Add(rule.Kind))
+            { Error("rules.kind", "类型权重表包含空项、未知或重复类型"); continue; }
+            if (rule.Weight < 0) Error("rules.weight", "权重不能为负");
+            typeTotal += rule.Weight;
+            var ids = new HashSet<int>();
+            long total = 0;
+            if (rule.Levels == null) { Error("rules.levels", "缺少等级权重"); continue; }
+            foreach (var w in rule.Levels)
+            {
+                if (w == null) { Error("rules.level", "空等级权重"); continue; }
+                if (w.Weight < 0 || !ids.Add(w.LevelId) || effects == null || !effects.Has(rule.Kind, w.LevelId))
+                    Error("rules.level", "等级权重须引用有效且不重复的 ID，权重不可为负");
+                total += w.Weight;
+            }
+            if ((rule.Weight > 0 && total <= 0) || total > int.MaxValue) Error("rules.total", "启用类型的等级权重总和必须有效");
         }
-        rewardConfig = rewardConfig ?? GlobalRewardConfig.Default;
-        trapConfig = trapConfig ?? GlobalTrapConfig.Default;
-
-        var def = level.Definition;
-        int n = level.Tiles.Count;
-
-        // ---- 格数与主题 ----
-        if (def.GridCount < 20 || def.GridCount > 60)
-            report.Add(ValidationSeverity.Error, "gridCount.range", $"gridCount={def.GridCount} 越界（20–60）");
-        if (n != def.GridCount)
-            report.Add(ValidationSeverity.Error, "tileCount.mismatch", $"瓦片数 {n} ≠ gridCount {def.GridCount}");
-        if (def.ThemeId < 0 || def.ThemeId >= JumpConfig.LevelThemeNames.Length)
-            report.Add(ValidationSeverity.Error, "theme.missing", $"themeId={def.ThemeId} 无效（0..{JumpConfig.LevelThemeNames.Length - 1}）");
-
-        // ---- 起点 / 终点：各恰好 1 个，且位于首末 ----
-        int starts = 0, ends = 0;
-        for (int i = 0; i < n; i++)
+        if (typeTotal <= 0 || typeTotal > int.MaxValue) Error("rules.total", "类型权重总和必须为 1–Int32.MaxValue");
+        var indices = new HashSet<int>();
+        foreach (var o in def.Overrides ?? new SpecialTileOverride[0])
         {
-            if (level.Tiles[i].Kind == TileKind.Start) starts++;
-            else if (level.Tiles[i].Kind == TileKind.End) ends++;
+            if (o == null) { Error("override.empty", "空覆盖项"); continue; }
+            if (o.Index <= 0 || o.Index >= def.GridCount - 1 || !indices.Add(o.Index))
+                Error("override.index", $"覆盖格 {o.Index} 越界、重复或为起终点");
+            if (!(o.Kind == TileKind.Normal || SpecialTiles.IsSpecial(o.Kind)))
+                Error("override.kind", "只能覆盖为普通、冰滑、塌陷或冲刺");
+            if (effects == null || !effects.Has(o.Kind, o.EffectLevelId) || (SpecialTiles.IsSpecial(o.Kind) && o.EffectLevelId <= 0))
+                Error("override.level", $"格 {o.Index} 引用了无效等级 {o.EffectLevelId}");
         }
-        if (starts != 1 || level.Tiles[0].Kind != TileKind.Start)
-            report.Add(ValidationSeverity.Error, "start.count", $"起点数量 {starts}（须恰 1 个且为首格）");
-        if (ends != 1 || level.Tiles[n - 1].Kind != TileKind.End)
-            report.Add(ValidationSeverity.Error, "end.count", $"终点数量 {ends}（须恰 1 个且为末格）");
+        return r;
+    }
 
-        // ---- 单格单类型 / 类型与携带一致 ----
+    public ValidationReport Validate(GeneratedLevel level)
+    {
+        if (level == null) { var empty = new ValidationReport(); empty.Add(ValidationSeverity.Error, "level.empty", "关卡为空"); return empty; }
+        var r = ValidateDefinition(level.Definition, level.Effects);
+        void Error(string code, string text) => r.Add(ValidationSeverity.Error, code, text);
+        if (!r.Pass) return r;
+        int n = level.Tiles?.Count ?? 0;
+        if (n != level.Definition.GridCount || n != level.TileCount || level.Tiles.Any(t => t == null))
+        { Error("tileCount.mismatch", "瓦片数量或内容不匹配"); return r; }
+        if (level.Tiles.Count(t => t.Kind == TileKind.Start) != 1 || level.Tiles[0].Kind != TileKind.Start)
+            Error("start.count", "起点须唯一且为首格");
+        if (level.Tiles.Count(t => t.Kind == TileKind.End) != 1 || level.Tiles[n - 1].Kind != TileKind.End)
+            Error("end.count", "终点须唯一且为末格");
+        if (level.Tiles.Count(t => t.Kind == TileKind.Sprint) > 1) Error("sprint.cap", "每关最多一个冲刺格");
         for (int i = 0; i < n; i++)
         {
             var t = level.Tiles[i];
-            bool hasReward = t.Reward != RewardKind.None;
-            bool hasTrap = t.Trap != TrapKind.None;
-            if (hasReward && hasTrap)
-                report.Add(ValidationSeverity.Error, "tile.conflict", $"格 {i} 同格出现奖励与陷阱多种类型");
-            switch (t.Kind)
+            if (t.Index != i || !Enum.IsDefined(typeof(TileKind), t.Kind) || !Enum.IsDefined(typeof(TileAxis), t.ArrivalAxis))
+                Error("tile.identity", $"格 {i} 索引、类型或轴无效");
+            if (!SpecialTileSettings.Finite(t.Size) || t.Size <= 0 || !SpecialTileSettings.Finite(t.X) || !SpecialTileSettings.Finite(t.Z))
+                Error("tile.geometry", $"格 {i} 几何参数无效");
+            if (!level.Effects.Has(t.Kind, t.EffectLevelId)) Error("tile.level", $"格 {i} 的等级不存在或普通格等级非 0");
+            if (SpecialTiles.IsSpecial(t.Kind))
             {
-                case TileKind.Reward when !hasReward:
-                    report.Add(ValidationSeverity.Error, "tile.kind", $"格 {i} 标记奖励但缺奖励类型"); break;
-                case TileKind.Trap when !hasTrap:
-                    report.Add(ValidationSeverity.Error, "tile.kind", $"格 {i} 标记陷阱但缺陷阱类型"); break;
-                case TileKind.Normal when (hasReward || hasTrap):
-                    report.Add(ValidationSeverity.Error, "tile.kind", $"格 {i} 标记普通却携带特殊效果"); break;
-                case TileKind.Start:
-                case TileKind.End:
-                    if (hasReward || hasTrap)
-                        report.Add(ValidationSeverity.Error, "tile.kind", $"起/终点格 {i} 不得携带特殊效果"); break;
+                if (i < 6 || i > n - 5) Error("special.zone", $"格 {i} 位于起步或终点安全区");
+                if (i > 0 && SpecialTiles.IsSpecial(level.Tiles[i - 1].Kind)) Error("special.adjacent", $"格 {i - 1} 与 {i} 特殊格连续");
             }
-        }
-
-        // ---- 特殊砖数量与公式一致 ----
-        var prof = DifficultyProfiles.Get(def.Difficulty);
-        int expectedRewards = Mathf.RoundToInt((n - 2) * prof.RewardDensity);
-        int expectedTraps = Mathf.RoundToInt((n - 2) * prof.TrapDensity);
-        var rewardIdx = new List<int>();
-        var trapIdx = new List<int>();
-        var rewardKinds = new List<RewardKind>();
-        var trapKinds = new List<TrapKind>();
-        for (int i = 0; i < n; i++)
-        {
-            if (level.Tiles[i].Kind == TileKind.Reward) { rewardIdx.Add(i); rewardKinds.Add(level.Tiles[i].Reward); }
-            else if (level.Tiles[i].Kind == TileKind.Trap) { trapIdx.Add(i); trapKinds.Add(level.Tiles[i].Trap); }
-        }
-        if (rewardIdx.Count != expectedRewards)
-            report.Add(ValidationSeverity.Error, "reward.count", $"奖励砖 {rewardIdx.Count} 个 ≠ 公式 {expectedRewards}");
-        if (trapIdx.Count != expectedTraps)
-            report.Add(ValidationSeverity.Error, "trap.count", $"陷阱砖 {trapIdx.Count} 个 ≠ 公式 {expectedTraps}");
-
-        // ---- 陷阱禁区 / 连续 / 上限 ----
-        for (int k = 0; k < trapIdx.Count; k++)
-        {
-            int i = trapIdx[k];
-            if (i < trapConfig.FirstTrapIndex)
-                report.Add(ValidationSeverity.Error, "trap.zone", $"陷阱在格 {i}（前 {trapConfig.FirstSafeJumpables} 个可跳格禁区）");
-            if (i > n - 1 - trapConfig.PreEndTrapFree - 1)
-                report.Add(ValidationSeverity.Error, "trap.zone", $"陷阱在格 {i}（终点前 {trapConfig.PreEndTrapFree} 格禁区）");
-            if (k > 0 && i - trapIdx[k - 1] <= 1)
-                report.Add(ValidationSeverity.Error, "trap.consecutive", $"格 {trapIdx[k - 1]} 与 {i} 陷阱连续");
-        }
-        if (CountKind(trapKinds, TrapKind.Phantom) > trapConfig.CapPhantom)
-            report.Add(ValidationSeverity.Error, "trap.cap", $"幻影超过每关上限 {trapConfig.CapPhantom}");
-        if (CountKind(trapKinds, TrapKind.Reverse) > trapConfig.CapReverse)
-            report.Add(ValidationSeverity.Error, "trap.cap", $"反向超过每关上限 {trapConfig.CapReverse}");
-        if (CountKind(trapKinds, TrapKind.Seal) > trapConfig.CapSeal)
-            report.Add(ValidationSeverity.Error, "trap.cap", $"封印超过每关上限 {trapConfig.CapSeal}");
-
-        // ---- 奖励间隔 / 起手区 / 上限 ----
-        for (int k = 0; k < rewardIdx.Count; k++)
-        {
-            int i = rewardIdx[k];
-            if (i < rewardConfig.FirstRewardIndex)
-                report.Add(ValidationSeverity.Error, "reward.zone", $"奖励在格 {i}（起手教学区）");
-            if (i >= n - 1)
-                report.Add(ValidationSeverity.Error, "reward.zone", $"奖励在格 {i}（终点格）");
-            if (k > 0 && i - rewardIdx[k - 1] < rewardConfig.MinRewardIndexGap)
-                report.Add(ValidationSeverity.Error, "reward.gap", $"奖励格 {rewardIdx[k - 1]} 与 {i} 间隔不足（至少隔 {rewardConfig.MinRewardIndexGap - 1} 格）");
-        }
-        if (CountReward(rewardKinds, RewardKind.LuckyWheel) > rewardConfig.CapLuckyWheel)
-            report.Add(ValidationSeverity.Error, "reward.cap", $"幸运转盘超过每关上限 {rewardConfig.CapLuckyWheel}");
-        if (CountReward(rewardKinds, RewardKind.SkinShard) > rewardConfig.CapSkinShard)
-            report.Add(ValidationSeverity.Error, "reward.cap", $"皮肤碎片超过每关上限 {rewardConfig.CapSkinShard}");
-        if (CountReward(rewardKinds, RewardKind.Shield) > rewardConfig.CapShield)
-            report.Add(ValidationSeverity.Error, "reward.cap", $"护盾超过每关上限 {rewardConfig.CapShield}");
-        if (CountReward(rewardKinds, RewardKind.Sprint) > rewardConfig.CapSprint)
-            report.Add(ValidationSeverity.Error, "reward.cap", $"冲刺超过每关上限 {rewardConfig.CapSprint}");
-
-        // ---- 冲刺：终点前 5 格禁放；后 4 格必须全部为普通安全格 ----
-        for (int k = 0; k < rewardIdx.Count; k++)
-        {
-            if (rewardKinds[k] != RewardKind.Sprint) continue;
-            int s = rewardIdx[k];
-            if (s > n - 1 - trapConfig.SprintPreEndExclusion - 1)
-                report.Add(ValidationSeverity.Error, "sprint.zone", $"冲刺在格 {s}（终点前 {trapConfig.SprintPreEndExclusion} 格内禁放）");
-            if (s + trapConfig.SprintTailSafeTiles > n - 1)
-                report.Add(ValidationSeverity.Error, "sprint.tail", $"冲刺在格 {s}（后 {trapConfig.SprintTailSafeTiles} 格越出关卡）");
-            for (int g = s + 1; g <= s + trapConfig.SprintTailSafeTiles && g < n; g++)
-                if (level.Tiles[g].Kind != TileKind.Normal)
-                    report.Add(ValidationSeverity.Error, "sprint.tail", $"冲刺格 {s} 之后的格 {g} 不是普通安全格");
-        }
-
-        // ---- 减速覆盖窗内不得有反向蓄力砖 ----
-        for (int k = 0; k < trapIdx.Count; k++)
-        {
-            if (trapKinds[k] != TrapKind.SlowCharge) continue;
-            int i = trapIdx[k];
-            for (int g = i + 1; g <= i + trapConfig.SlowCoverReverseBan && g < n; g++)
-                if (level.Tiles[g].Trap == TrapKind.Reverse)
-                    report.Add(ValidationSeverity.Error, "slow.reverse", $"减速格 {i} 覆盖窗内的格 {g} 有反向蓄力砖");
-        }
-
-        // ---- 格子重叠（全对检查） ----
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = i + 1; j < n; j++)
+            if (t.Kind == TileKind.Sprint)
             {
-                var a = level.Tiles[i]; var b = level.Tiles[j];
-                float dx = Mathf.Abs(a.X - b.X);
-                float dz = Mathf.Abs(a.Z - b.Z);
-                float sumHalf = (a.Size + b.Size) * 0.5f;
-                if (dx < sumHalf && dz < sumHalf)
-                    report.Add(ValidationSeverity.Error, "tile.overlap", $"格 {i} 与 {j} 重叠（dx={dx:F2} dz={dz:F2} 半宽和={sumHalf:F2}）");
+                var grade = level.Effects.GetSprint(t.EffectLevelId);
+                if (grade == null) continue;
+                if (i + grade.Steps >= n - 1) Error("sprint.channel", $"冲刺格 {i} 的通道超界或触及终点");
+                for (int j = i + 1; j <= i + grade.Steps && j < n; j++)
+                    if (level.Tiles[j].Kind != TileKind.Normal) Error("sprint.channel", $"冲刺格 {i} 的通道格 {j} 非普通格");
             }
-        }
-
-        // ---- 可达性与蓄力区间（独立重推理想落点链；含震荡一致性复核） ----
-        float standX = level.Tiles[0].X, standZ = level.Tiles[0].Z;
-        for (int j = 0; j < n - 1; j++)
-        {
-            var to = level.Tiles[j + 1];
-            var axis = DirOf(to.ArrivalAxis);
-            float dX = to.X - standX, dZ = to.Z - standZ;
-            float d = dX * axis.x + dZ * axis.y;             // 行进轴投影 = 本跳轴心距
-            float latX = dX - axis.x * d, latZ = dZ - axis.y * d; // 横向分量
-            var lateral = DirOf(Other(to.ArrivalAxis));
-            float signed = latX * lateral.x + latZ * lateral.y;
-
-            // 震荡偏移一致性：横向分量必须与烘焙 shakeOffset 吻合，且只有上一格为震荡陷阱时允许非零
-            if (Mathf.Abs(signed - to.ShakeOffset) > ShakeEpsilonM)
-                report.Add(ValidationSeverity.Error, "shake.mismatch", $"格 {j + 1} 横向偏移 {signed:F3}m ≠ 烘焙 {to.ShakeOffset:F3}m");
-            if (Mathf.Abs(to.ShakeOffset) > ShakeEpsilonM && level.Tiles[j].Trap != TrapKind.Shake)
-                report.Add(ValidationSeverity.Error, "shake.orphan", $"格 {j + 1} 带横移 {to.ShakeOffset:F3}m 但上一格不是震荡陷阱");
-
-            // 理论所需蓄力 150–1250ms
+            for (int j = 0; j < i; j++)
+            {
+                var b = level.Tiles[j];
+                float half = (t.Size + b.Size) * .5f;
+                if (Mathf.Abs(t.X - b.X) < half && Mathf.Abs(t.Z - b.Z) < half) Error("tile.overlap", $"格 {j}/{i} 重叠");
+            }
+            if (i == 0) continue;
+            var prev = level.Tiles[i - 1];
+            float d = t.ArrivalAxis == TileAxis.X ? t.X - prev.X : t.Z - prev.Z;
+            float lateral = t.ArrivalAxis == TileAxis.X ? t.Z - prev.Z : t.X - prev.X;
             float charge = LevelMath.ChargeMsAtDist(d);
-            if (charge < LevelMath.MinChargeMs - ChargeEpsilonMs || charge > LevelMath.MaxChargeMs + ChargeEpsilonMs)
-                report.Add(ValidationSeverity.Error, "charge.range",
-                    $"跳 {j}→{j + 1} 轴心距 {d:F2}m 所需蓄力 {charge:F0}ms 越界（150–1250ms）");
-
-            // 反向蓄力出口：离开反向格的按压口径（qReverse=1-q）
-            if (level.Tiles[j].Trap == TrapKind.Reverse)
-            {
-                float hold = LevelMath.ChargeMsReversedAtDist(d);
-                if (hold < LevelMath.MinChargeMs || hold > LevelMath.MaxChargeMs)
-                    report.Add(ValidationSeverity.Warning, "reverse.hold",
-                        $"反向格 {j} 出口有效按压 {hold:F0}ms 超出 150–1250ms（体验风险）");
-            }
-
-            standX += axis.x * d; // 理想落点链前进（横向分量不入链——与引擎落点判定口径一致）
-            standZ += axis.y * d;
+            if (Mathf.Abs(lateral) > .002f || charge < LevelMath.MinChargeMs - 1 || charge > LevelMath.MaxChargeMs + 1)
+                Error("charge.range", $"跳 {i - 1}→{i} 不满足轴向可达性");
         }
-
-        // ---- 通关时长警告 ----
-        if (level.PredictedClearSeconds > 0f)
-        {
-            if (level.PredictedClearSeconds < 60f)
-                report.Add(ValidationSeverity.Warning, "time.short", $"预估通关 {level.PredictedClearSeconds:F0}s（<60s）");
-            else if (level.PredictedClearSeconds > 120f)
-                report.Add(ValidationSeverity.Warning, "time.long", $"预估通关 {level.PredictedClearSeconds:F0}s（>120s）");
-        }
-        return report;
+        foreach (var o in level.Definition.Overrides ?? new SpecialTileOverride[0])
+            if (level.Tiles[o.Index].Kind != o.Kind || level.Tiles[o.Index].EffectLevelId != o.EffectLevelId)
+                Error("override.mismatch", $"格 {o.Index} 未兑现手工覆盖");
+        if ((level.Definition.Overrides?.Length ?? 0) == 0 &&
+            level.Tiles.Count(t => SpecialTiles.IsSpecial(t.Kind)) != Mathf.RoundToInt((n - 2) * DifficultyProfiles.Get(level.Definition.Difficulty).SpecialDensity))
+            Error("special.count", "自动特殊格数量与密度公式不一致");
+        return r;
     }
-
-    private static int CountKind(List<TrapKind> list, TrapKind kind)
-    {
-        int c = 0;
-        for (int i = 0; i < list.Count; i++) if (list[i] == kind) c++;
-        return c;
-    }
-
-    private static int CountReward(List<RewardKind> list, RewardKind kind)
-    {
-        int c = 0;
-        for (int i = 0; i < list.Count; i++) if (list[i] == kind) c++;
-        return c;
-    }
-
-    private static Vector2 DirOf(TileAxis axis) => axis == TileAxis.X ? Vector2.right : Vector2.up;
-
-    private static TileAxis Other(TileAxis axis) => axis == TileAxis.X ? TileAxis.Z : TileAxis.X;
 }

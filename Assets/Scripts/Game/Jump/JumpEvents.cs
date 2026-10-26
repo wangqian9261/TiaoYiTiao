@@ -6,8 +6,6 @@ public static class JumpEvents
     public const string ScoreChanged = "Jump.ScoreChanged";
     /// <summary>int：本次完美连击数（≥1）</summary>
     public const string Perfect = "Jump.Perfect";
-    /// <summary>JumpItemKind：砖上物品停留触发成功（效果由 JumpGame 执行）</summary>
-    public const string ItemCollected = "Jump.ItemCollected";
     /// <summary>string：通用提示飘字（HUD 顶部展示：物品效果/护盾生效/转盘奖励）</summary>
     public const string Toast = "Jump.Toast";
     /// <summary>JumpResultArgs：单局结算（结果页入参同款）</summary>

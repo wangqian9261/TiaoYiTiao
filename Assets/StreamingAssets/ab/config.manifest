@@ -1,26 +1,39 @@
 ManifestFileVersion: 0
-CRC: 19028960
+CRC: 3953904779
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 8319bed90e197a891657bcff2f76ecfb
+    Hash: 37fb6b7ec6fba2f4d2c92a15da6feca6
   TypeTreeHash:
     serializedVersion: 2
-    Hash: fe46f29c452498814bfed69d707afd01
+    Hash: 62071857f45573e48e8271c0a558769b
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 8319bed90e197a891657bcff2f76ecfb
+    Hash: 37fb6b7ec6fba2f4d2c92a15da6feca6
 HashAppended: 0
 ClassTypes:
 - Class: 49
   Script: {instanceID: 0}
 - Class: 114
+  Script: {fileID: 11500000, guid: ed4c0aebb533a4295ae482cb41d0ba68, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 70214e2fd4b3e427fbcc563747d75d44, type: 3}
 - Class: 115
   Script: {instanceID: 0}
-SerializeReferenceClassIdentifiers: []
+SerializeReferenceClassIdentifiers:
+- AssemblyName: Assembly-CSharp
+  ClassName: CollapseLevel
+- AssemblyName: Assembly-CSharp
+  ClassName: ComboCoinTier
+- AssemblyName: Assembly-CSharp
+  ClassName: IceLevel
+- AssemblyName: Assembly-CSharp
+  ClassName: SpecialTileSettings
+- AssemblyName: Assembly-CSharp
+  ClassName: SprintLevel
 Assets:
 - Assets/GameRes/Config/Levels/Drafts/level_009.json
+- Assets/GameRes/Config/SpecialTileConfig.asset
 - Assets/GameRes/Config/Levels/Pack/pack_1_0_1.json
 - Assets/GameRes/Config/demo.json
 - Assets/GameRes/Config/Levels/Drafts/level_002.json
@@ -32,10 +45,12 @@ Assets:
 - Assets/GameRes/Config/Levels/Drafts/level_004.json
 - Assets/GameRes/Config/Levels/Pack/pack_1_0_1.sha256.txt
 - Assets/GameRes/Config/Levels/Drafts/level_006.json
+- Assets/GameRes/Config/Levels/Pack/pack_2_0_0.json
 - Assets/GameRes/Config/Levels/Pack/pack_1_0_0.sha256.txt
 - Assets/GameRes/Config/Levels/Drafts/level_012.json
 - Assets/GameRes/Config/Levels/Drafts/level_005.json
 - Assets/GameRes/Config/Levels/Drafts/level_008.json
+- Assets/GameRes/Config/Levels/Pack/pack_2_0_0.sha256.txt
 - Assets/GameRes/Config/Levels/Pack/pack_index.json
 - Assets/GameRes/Config/Levels/Drafts/level_007.json
 - Assets/GameRes/Config/Levels/Drafts/level_003.json

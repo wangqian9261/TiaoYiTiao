@@ -8,12 +8,12 @@ using UnityEngine;
 /// 关卡包 IO：领域模型 ↔ JSON DTO（JsonUtility 兼容）、layoutHash 与 SHA-256。
 /// 纯转换层，不碰文件系统——草稿读写与发布落盘由编辑器管线（AssetDatabase）完成，
 /// 运行时装载经 DataMgr.LoadConfigAsync（GameRes 模拟/AB 同构）。
-/// 发布产物：pack_{version}.json + pack_{version}.sha256.txt + pack_index.json（全包原子替换，旧包保留供回滚）。
+/// 发布产物：pack_{version}.json + pack_{version}.sha256.txt + pack_index.json（原子写入；仅 schema 2 包可回滚）。
 /// </summary>
 public class LevelPackIo : ILevelPackExporter
 {
     /// <summary>关卡包结构版本（不支持的 schemaVersion 阻断开局并提示更新）</summary>
-    public const int SchemaVersion = 1;
+    public const int SchemaVersion = 2;
 
     public const string PackResDir = "Config/Levels/Pack";   // GameRes 内目录
     public const string DraftResDir = "Config/Levels/Drafts";
@@ -83,6 +83,9 @@ public class LevelPackIo : ILevelPackExporter
             layoutHash = level.LayoutHash ?? "",
             tileCount = level.TileCount,
             tiles = new PackedTileData[tiles.Count],
+            specialRules = Clone(level.Definition.SpecialRules ?? DifficultyProfiles.DefaultRules(def.Difficulty)),
+            overrides = Clone(def.Overrides ?? new SpecialTileOverride[0]),
+            effects = level.Effects.Snapshot(),
         };
         for (int i = 0; i < tiles.Count; i++)
         {
@@ -95,10 +98,7 @@ public class LevelPackIo : ILevelPackExporter
                 x = LevelMath.ToMm(t.X),
                 z = LevelMath.ToMm(t.Z),
                 size = LevelMath.ToMm(t.Size),
-                rewardKind = (int)t.Reward,
-                trapKind = (int)t.Trap,
-                effectSeed = unchecked((long)t.EffectSeed),
-                shakeOffset = LevelMath.ToMm(t.ShakeOffset),
+                effectLevelId = t.EffectLevelId,
             };
         }
         return d;
@@ -120,9 +120,12 @@ public class LevelPackIo : ILevelPackExporter
                 Seed = unchecked((uint)d.seed),
                 ThemeId = d.themeId,
                 Enabled = d.enabled,
+                SpecialRules = Clone(d.specialRules),
+                Overrides = Clone(d.overrides ?? new SpecialTileOverride[0]),
             },
             GeneratorVersion = d.generatorVersion,
             TileCount = d.tileCount,
+            Effects = d.effects?.Snapshot(),
             LayoutHash = d.layoutHash,
         };
         level.Tiles.Capacity = d.tiles.Length;
@@ -136,10 +139,7 @@ public class LevelPackIo : ILevelPackExporter
                 X = LevelMath.FromMm(t.x),
                 Z = LevelMath.FromMm(t.z),
                 Size = LevelMath.FromMm(t.size),
-                Reward = (RewardKind)t.rewardKind,
-                Trap = (TrapKind)t.trapKind,
-                EffectSeed = unchecked((uint)t.effectSeed),
-                ShakeOffset = LevelMath.FromMm(t.shakeOffset),
+                EffectLevelId = t.effectLevelId,
             });
         }
         return level;
@@ -149,58 +149,29 @@ public class LevelPackIo : ILevelPackExporter
 
     /// <summary>layoutHash：对生成关卡（烘焙口径：毫米整数）做 SHA-256</summary>
     public static string ComputeLayoutHash(GeneratedLevel level)
-    {
-        if (level?.Tiles == null || level.Tiles.Count == 0) return "";
-        var sb = new StringBuilder(256);
-        AppendLayoutHeader(sb, level.GeneratorVersion, level.Definition.LevelId, level.TileCount);
-        for (int i = 0; i < level.Tiles.Count; i++)
-        {
-            var t = level.Tiles[i];
-            AppendLayoutTile(sb,
-                t.Index, (int)t.Kind, (int)t.ArrivalAxis,
-                LevelMath.ToMm(t.X), LevelMath.ToMm(t.Z), LevelMath.ToMm(t.Size),
-                (int)t.Reward, (int)t.Trap, unchecked((long)t.EffectSeed),
-                LevelMath.ToMm(t.ShakeOffset));
-        }
-        return Sha256Hex(sb.ToString());
-    }
+        => level == null ? "" : ComputeLayoutHashFromPacked(ToPackedLevel(level));
 
-    /// <summary>layoutHash：对烘焙 DTO（重导入路径）重算——与生成路径字节一致</summary>
     public static string ComputeLayoutHashFromPacked(PackedLevelData d)
     {
-        if (d?.tiles == null || d.tiles.Length == 0) return "";
-        var sb = new StringBuilder(256);
-        AppendLayoutHeader(sb, d.generatorVersion, d.levelId, d.tileCount);
-        for (int i = 0; i < d.tiles.Length; i++)
-        {
-            var t = d.tiles[i];
-            AppendLayoutTile(sb, t.index, t.kind, t.arrivalAxis, t.x, t.z, t.size,
-                t.rewardKind, t.trapKind, t.effectSeed, t.shakeOffset);
-        }
-        return Sha256Hex(sb.ToString());
+        if (d?.tiles == null || d.tiles.Length == 0 || d.effects == null) return "";
+        // Hash every serialized gameplay/authoring field, excluding only the hash itself.
+        var canonical = JsonUtility.FromJson<PackedLevelData>(JsonUtility.ToJson(d));
+        canonical.layoutHash = "";
+        return ComputeSha256(JsonUtility.ToJson(canonical));
     }
 
-    /// <summary>烘焙关卡完整性校验（运行时装载 / 发布重导入共用）</summary>
     public static bool VerifyPackedLevel(PackedLevelData d)
-        => !string.IsNullOrEmpty(d.layoutHash)
-           && ComputeLayoutHashFromPacked(d) == d.layoutHash;
-
-    private static void AppendLayoutHeader(StringBuilder sb, string version, int levelId, int tileCount)
     {
-        sb.Append(version ?? "").Append('|').Append(levelId).Append('|').Append(tileCount).Append('|');
+        if (d == null || string.IsNullOrEmpty(d.layoutHash) || d.effects == null ||
+            d.tiles == null || Array.Exists(d.tiles, t => t == null)) return false;
+        if (ComputeLayoutHashFromPacked(d) != d.layoutHash) return false;
+        return new LevelValidator().Validate(ToGeneratedLevel(d)).Pass;
     }
 
-    private static void AppendLayoutTile(StringBuilder sb, int index, int kind, int axis,
-        int x, int z, int size, int reward, int trap, long effectSeed, int shakeOffset)
-    {
-        sb.Append(index).Append(',').Append(kind).Append(',').Append(axis).Append(',')
-          .Append(x).Append(',').Append(z).Append(',').Append(size).Append(',')
-          .Append(reward).Append(',').Append(trap).Append(',')
-          .Append(effectSeed).Append(',').Append(shakeOffset).Append(';');
-    }
-
-    /// <summary>SHA-256 十六进制（layoutHash 专用口径）</summary>
-    private static string Sha256Hex(string content) => ComputeSha256(content);
+    [Serializable] private class ArrayWrapper<T> { public T[] values; }
+    public static T[] Clone<T>(T[] values)
+        => values == null ? null : JsonUtility.FromJson<ArrayWrapper<T>>(
+            JsonUtility.ToJson(new ArrayWrapper<T> { values = values })).values;
 
     // ---------- SHA-256 ----------
 
@@ -247,10 +218,13 @@ public class LevelPackIo : ILevelPackExporter
             seed = unchecked((long)def.Seed),
             themeId = def.ThemeId,
             enabled = def.Enabled,
+            useDefaultSpecialRules = def.SpecialRules == null,
+            specialRules = Clone(def.SpecialRules),
+            overrides = Clone(def.Overrides ?? new SpecialTileOverride[0]),
         };
 
     public static LevelDefinition ToDefinition(LevelDefinitionData d)
-        => new LevelDefinition
+        => d == null ? null : new LevelDefinition
         {
             LevelId = d.levelId,
             ChapterId = d.chapterId,
@@ -260,5 +234,7 @@ public class LevelPackIo : ILevelPackExporter
             Seed = unchecked((uint)d.seed),
             ThemeId = d.themeId,
             Enabled = d.enabled,
+            SpecialRules = d.useDefaultSpecialRules ? null : Clone(d.specialRules),
+            Overrides = Clone(d.overrides ?? new SpecialTileOverride[0]),
         };
 }

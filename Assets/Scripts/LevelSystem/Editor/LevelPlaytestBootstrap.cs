@@ -17,7 +17,7 @@ public static class LevelPlaytestBootstrap
 
     private static void OnPlayModeChanged(PlayModeStateChange change)
     {
-        if (change == PlayModeStateChange.ExitingEditMode)
+        if (change == PlayModeStateChange.ExitingPlayMode)
         {
             LevelRuntime.ClearPlaytest();
             Debug.Log("[LevelPlaytest] 退出 Play，已清空试玩草稿");

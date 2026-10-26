@@ -95,7 +95,7 @@ public class UIBattleView : UIPanel
         var game = JumpGame.Instance;
         if (game == null) return;
         pauseOverlay.SetActive(game.UserPaused);
-        float dt = game.TrapTimeFrozen ? 0f : Time.deltaTime;
+        float dt = game.TimeFrozen ? 0f : Time.deltaTime;
         _introElapsed += dt; _comboElapsed += dt; _perfectElapsed += dt; _scorePulse += dt;
         if (_lastLevel != game.CurrentLevel)
         {
@@ -131,9 +131,8 @@ public class UIBattleView : UIPanel
                 targetRing.color = urgent && Mathf.Repeat(game.ChargeElapsed * 3f, 1f) < .5f ? new Color(1f, .35f, .35f) : Color.white;
             }
         }
-        UpdateTrap(game, game.BurnCountdown >= 0 ? game.BurnCountdown : game.PhantomCountdown);
-        bonusHintText.gameObject.SetActive(charging && game.ReverseNext);
-        if (charging && game.ReverseNext) bonusHintText.text = "反向力度";
+        UpdateTrap(game, game.CollapseCountdown);
+        bonusHintText.gameObject.SetActive(false);
         AnimateFeedback(comboFeedback, _comboElapsed, 1.25f); AnimateFeedback(perfectFeedback, _perfectElapsed, .9f);
         scoreText.transform.localScale = Vector3.one * (1f + .15f * Mathf.Sin(Mathf.Clamp01(_scorePulse / .3f) * Mathf.PI));
         foreach (var hint in _floats)
@@ -177,14 +176,14 @@ public class UIBattleView : UIPanel
     {
         var cam = Camera.main;
         if (remaining < 0 || cam == null) { trapHint.gameObject.SetActive(false); return; }
-        Vector3 screen = cam.WorldToScreenPoint(game.TrapAnchor + Vector3.up * .65f);
+        Vector3 screen = cam.WorldToScreenPoint(game.EffectAnchor + Vector3.up * .65f);
         if (screen.z <= 0 || screen.x < 0 || screen.x > Screen.width || screen.y < 0 || screen.y > Screen.height)
         { trapHint.gameObject.SetActive(false); return; }
         trapHint.gameObject.SetActive(true);
         RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)transform, screen, UICamera, out Vector2 pos);
         trapHint.anchoredPosition = pos; trapHint.localScale = Vector3.one * (((RectTransform)transform).rect.width / 750f);
         trapText.text = Mathf.Max(0, remaining).ToString("0.0") + "s";
-        timerRing.fillAmount = Mathf.Clamp01(remaining / Mathf.Max(.01f, game.TrapDuration));
+        timerRing.fillAmount = Mathf.Clamp01(remaining / Mathf.Max(.01f, game.EffectDuration));
     }
     private void OnScoreChanged(JumpScoreArgs args)
     {

@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:yousandi.cn,2023:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed4c0aebb533a4295ae482cb41d0ba68, type: 3}
+  m_Name: SpecialTileConfig
+  m_EditorClassIdentifier:
+  Settings:
+    Version: 1
+    Ice:
+    - Id: 1
+      StartDelay: 0.79999995
+      Speed: 0.15
+    - Id: 2
+      StartDelay: 0.65
+      Speed: 0.2
+    - Id: 3
+      StartDelay: 0.49999997
+      Speed: 0.25
+    - Id: 4
+      StartDelay: 0.34999996
+      Speed: 0.3
+    - Id: 5
+      StartDelay: 0.19999996
+      Speed: 0.35
+    Collapse:
+    - Id: 1
+      Seconds: 2.5
+    - Id: 2
+      Seconds: 2.1999998
+    - Id: 3
+      Seconds: 1.8999999
+    - Id: 4
+      Seconds: 1.5999999
+    - Id: 5
+      Seconds: 1.3
+    Sprint:
+    - Id: 1
+      Steps: 1
+      ChargeSeconds: 0.35
+      HopSeconds: 0.2
+    - Id: 2
+      Steps: 2
+      ChargeSeconds: 0.35
+      HopSeconds: 0.2
+    - Id: 3
+      Steps: 3
+      ChargeSeconds: 0.35
+      HopSeconds: 0.2
+    - Id: 4
+      Steps: 4
+      ChargeSeconds: 0.35
+      HopSeconds: 0.2
+    - Id: 5
+      Steps: 5
+      ChargeSeconds: 0.35
+      HopSeconds: 0.2

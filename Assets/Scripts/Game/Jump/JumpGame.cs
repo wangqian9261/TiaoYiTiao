@@ -3,14 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-/// <summary>
-/// 跳一跳主控：世界创建 / 方块生成回收 / 蓄力与跳跃 / 落点判定 / 计分与砖上物品 / 陷阱砖 /
-/// 镜头跟随 / 死亡与重开 / GM 指令。
-/// 砖上物品（转盘/积分增益/金币袋/碎片/护盾/冲刺）：踩上停留 1.5s 自动触发，无需操作。
-/// 陷阱砖（打滑/幻影/迷雾减速/震荡/燃烧/反向蓄力/封印）：落地即触发；全部带预警外观、可规避、无秒杀。
-/// 入口：PanelHome“开始”按钮或 GM 指令 → StartGame()；回主页 → ExitToHome()（销毁世界）。
-/// 不依赖 GameLauncher / Procedure；所有状态自管理，事件经 EventCenter 派发。
-/// </summary>
+/// <summary>跳一跳：统一功能格、手动跳跃、确定性关卡和通关连跳奖励。</summary>
 public class JumpGame : MonoBehaviour
 {
     public static JumpGame Instance { get; private set; }
@@ -25,67 +18,18 @@ public class JumpGame : MonoBehaviour
     /// <summary>本局已前进块数（当前所站块 Index，起点 0）</summary>
     public int LevelProgress => _current != null ? _current.Index : 0;
 
-    /// <summary>当前所站砖携带的未触发物品（无则 None）</summary>
-    public JumpItemKind CurrentItem
-        => _current != null && !_current.ItemConsumed ? _current.ItemKind : JumpItemKind.None;
-
-    /// <summary>物品停留触发进度 0~1；不适用时返回 -1</summary>
-    public float ItemStayProgress
-    {
-        get
-        {
-            if (State != JumpState.Ready || CurrentItem == JumpItemKind.None) return -1f;
-            return Mathf.Clamp01(_itemTimer / JumpConfig.ItemStaySeconds);
-        }
-    }
-
-    /// <summary>本局积分倍率加成（0..ScoreBoostMax；积分增益砖逐层叠加）</summary>
-    public float ScoreMultiplier => _scoreMult;
-    /// <summary>本局完美落点额外分（积分增益砖触发后为 ScoreBoostPerfectBonus）</summary>
-    public int PerfectExtra => _perfectExtra;
-    /// <summary>剩余护盾层数（护盾砖叠加，坠落自动消耗复活）</summary>
-    public int ShieldCount => _shieldCount;
-    /// <summary>本局收益是否已翻倍（幸运转盘奖励）</summary>
-    public bool RunRewardDoubled => _runDouble;
-
-    /// <summary>当前所站砖携带的未触发陷阱（无则 None）</summary>
-    public JumpTrapKind CurrentTrap
-        => _current != null && !_current.TrapConsumed ? _current.TrapKind : JumpTrapKind.None;
-    /// <summary>燃烧剩余秒数（未在燃烧倒计时中返回 -1）</summary>
-    public float BurnCountdown
-    {
-        get
-        {
-            if (_burnBlock == null || (State != JumpState.Ready && State != JumpState.Charging)) return -1f;
-            return _burnRemain;
-        }
-    }
-    /// <summary>剩余减速蓄力次数（迷雾砖效果）</summary>
-    public int SlowChargeRemaining => _slowChargeCount;
-    /// <summary>下一次跳跃是否反向蓄力（反向砖效果）</summary>
-    public bool ReverseNext => _reverseNext;
-
-    // ---------- 有限关卡模式（关卡编辑器烘焙包驱动；_plan==null 时回退旧无限模式） ----------
-    /// <summary>当前对局的关卡计划（null = 旧无限模式）</summary>
     public LevelRunPlan Plan => _plan;
-    /// <summary>关卡显示名（计划=烘焙包名；旧模式=GetLevelName）</summary>
-    public string CurrentLevelName
-        => _plan != null ? _plan.DisplayName : JumpConfig.GetLevelName(_level);
-    /// <summary>本关累计金币（结算统一入账；转盘"本关金币翻倍"覆盖）</summary>
+    public string CurrentLevelName => _plan != null ? _plan.DisplayName : JumpConfig.GetLevelName(_level);
     public int RunCoins => _runCoins;
-    /// <summary>转盘"本关金币收益翻倍"是否激活</summary>
-    public bool RunCoinDouble => _coinDouble;
-    /// <summary>幻影塌陷剩余秒数（未激活返回 -1）</summary>
-    public float PhantomCountdown
-    {
-        get
-        {
-            if (_phantomBlock == null || (State != JumpState.Ready && State != JumpState.Charging)) return -1f;
-            return _phantomRemain;
-        }
-    }
-    /// <summary>陷阱倒计时是否冻结（转盘弹窗/切后台：暂停蓄力、陷阱计时和关卡逻辑）</summary>
-    public bool TrapTimeFrozen => _wheelOpen || _appPaused || _userPaused;
+    public TileKind CurrentTileKind => _current != null ? _current.Kind : TileKind.Normal;
+    public int CurrentEffectLevelId => _current != null ? _current.EffectLevelId : 0;
+    public float CollapseCountdown => _current != null && _current.Kind == TileKind.Collapse &&
+        (State == JumpState.Ready || State == JumpState.Charging)
+        ? Mathf.Max(0, _plan.Source.Effects.GetCollapse(_current.EffectLevelId).Seconds - _effectTimer.Elapsed) : -1f;
+    public Vector3 EffectAnchor => _current != null ? _current.TopCenter : Vector3.zero;
+    public float EffectDuration => CurrentTileKind == TileKind.Collapse
+        ? _plan.Source.Effects.GetCollapse(_current.EffectLevelId).Seconds : 0f;
+    public bool TimeFrozen => _appPaused || _userPaused;
     public bool UserPaused => _userPaused;
     public bool AppPaused => _appPaused;
     public int Combo => _combo;
@@ -93,22 +37,20 @@ public class JumpGame : MonoBehaviour
     public bool IsRunActive(int version) => this != null && Instance == this
         && version == _presentationVersion && State != JumpState.Idle && State != JumpState.Over;
     public float ChargeElapsed => State == JumpState.Charging ? Mathf.Max(0f, Time.time - _chargeStart) : 0f;
-    public float ChargePhase => Mathf.Repeat(ChargeElapsed / (JumpConfig.ChargeCycleSeconds * _chargeScale), 1f);
+    public float ChargePhase => Mathf.Repeat(ChargeElapsed / (JumpConfig.ChargeCycleSeconds), 1f);
     public float ChargePower => GetPower();
-    public Vector3 TrapAnchor => _burnBlock != null ? _burnBlock.TopCenter : _phantomBlock != null ? _phantomBlock.TopCenter : Vector3.zero;
-    public float TrapDuration => _burnBlock != null ? _burnTotal : Mathf.Max(.01f, _phantomTotal);
 
     /// <summary>The displayed sector uses exactly the distance/half-width used by EvaluateLanding.</summary>
     public bool TryGetChargeTarget(out Vector2 phaseRange)
     {
         phaseRange = Vector2.zero;
         if (_current == null || _next == null) return false;
-        float distance = Vector3.Dot(_next.TopCenter - _current.TopCenter, TravelAxis(_current.Index));
+        float distance = Vector3.Dot(_next.TopCenter - _character.transform.position, TravelAxis(_current.Index));
         float near = distance - _next.Size * .5f, far = distance + _next.Size * .5f;
         if (far < JumpConfig.MinJumpDist || near > JumpConfig.MaxJumpDist) return false;
         float lo = Mathf.InverseLerp(JumpConfig.MinJumpDist, JumpConfig.MaxJumpDist, near);
         float hi = Mathf.InverseLerp(JumpConfig.MinJumpDist, JumpConfig.MaxJumpDist, far);
-        phaseRange = _reverseNext ? new Vector2(1f - hi, 1f - lo) : new Vector2(lo, hi);
+        phaseRange = new Vector2(lo, hi);
         return true;
     }
 
@@ -127,19 +69,19 @@ public class JumpGame : MonoBehaviour
     }
 
     private bool _userPaused, _ownsTimePause;
-    private bool _wheelLoading, _runTransitioning;
-    private float _savedTimeScale = 1f, _burnTotal;
+    private bool _runTransitioning;
+    private float _savedTimeScale = 1f;
     private Action _onWxShow;
 
     private void ApplyTimeFreeze()
     {
-        if (TrapTimeFrozen && !_ownsTimePause)
+        if (TimeFrozen && !_ownsTimePause)
         {
             _savedTimeScale = Time.timeScale;
             _ownsTimePause = true;
             Time.timeScale = 0f;
         }
-        else if (!TrapTimeFrozen) ReleaseTimeFreeze();
+        else if (!TimeFrozen) ReleaseTimeFreeze();
     }
 
     private void ReleaseTimeFreeze()
@@ -151,16 +93,9 @@ public class JumpGame : MonoBehaviour
 
     private async UniTask WaitForPresentationResumeAsync(int version)
     {
-        while (this != null && Instance == this && version == _presentationVersion && TrapTimeFrozen)
+        while (this != null && Instance == this && version == _presentationVersion && TimeFrozen)
             await UniTask.Yield();
     }
-    /// <summary>转盘弹窗已关闭（PanelLuckyWheel.OnClose 回调：解除冻结）</summary>
-    public void NotifyWheelClosed()
-    {
-        _wheelOpen = false;
-        ApplyTimeFreeze();
-    }
-
     private readonly List<JumpBlock> _blocks = new List<JumpBlock>();
     private JumpBlock _current;   // 角色所站块
     private JumpBlock _next;      // 下一目标块
@@ -171,7 +106,6 @@ public class JumpGame : MonoBehaviour
 
     private float _chargeStart;
     private bool _swallowNextRelease; // 微信切后台取消蓄力后，吞掉一次松手
-    private float _itemTimer;
     private int _combo;
     private int _maxCombo;
     private int _perfectCount;
@@ -179,36 +113,11 @@ public class JumpGame : MonoBehaviour
     private bool _poolReady;
     private bool _booted;
 
-    // 砖上物品（本局状态）
-    private readonly Dictionary<JumpItemKind, GameObject> _itemModels = new Dictionary<JumpItemKind, GameObject>(); // 模型prefab缓存（开局装载，OnDestroy 释放）
-    private float _scoreMult;          // 本局积分倍率加成（0..1）
-    private int _perfectExtra;         // 完美落点额外分（积分增益后 = ScoreBoostPerfectBonus）
-    private int _shieldCount;          // 护盾层数
-    private bool _runDouble;           // 本局收益翻倍（转盘奖励）
-    private JumpItemKind _gmItemKind; // GM 强制第 3 块（index=2）物品（测试通道；None=随机）
-
-    // 陷阱砖（本局状态）
-    private readonly Dictionary<JumpTrapKind, GameObject> _trapModels = new Dictionary<JumpTrapKind, GameObject>(); // 标记模型缓存
-    private int _slowChargeCount;       // 迷雾：剩余减速蓄力次数
-    private float _chargeScale = 1f;    // 本次蓄力耗时倍率（迷雾激活时 = SlowChargeFactor）
-    private bool _reverseNext;          // 反向：下一次蓄力 power 反转
-    private JumpBlock _burnBlock;       // 燃烧：倒计时所在块（null=无）
-    private float _burnRemain;          // 燃烧：剩余秒（remain 制：转盘/切后台冻结推进）
-    private int _phantomCount;          // 幻影：本关已刷数量（≤2）
-    private int _lastPhantomIndex = -10; // 幻影：上一个幻影块 index（绝不连续）
-    private JumpTrapKind _gmTrapKind;  // GM 强制第 4 块（index=3）陷阱（测试通道；None=随机）
-
-    // 有限关卡模式（本局状态）
-    private LevelRunPlan _plan;             // 烘焙关卡计划（一次对局持有同一对象——回滚语义基石）
-    private ITileEffectResolver _resolver;        // 落格效果解析（数值出口：全局经济配置 + effectSeed）
-    private LevelEconomyConfig _economy;          // 全局经济配置缓存
-    private int _runCoins;                         // 本关金币累计（结算统一入账）
-    private bool _coinDouble;                      // 转盘：本关金币收益翻倍（含触发前已得）
-    private bool _wheelOpen;                       // 转盘弹窗打开中（冻结陷阱计时/物品停留）
-    private bool _appPaused;                       // 切后台（OnApplicationPause）
-    private JumpBlock _phantomBlock;               // 幻影：倒计时所在块
-    private float _phantomRemain;                   // 幻影：剩余秒
-    private float _phantomTotal;                    // 幻影：倒计时总长（闪烁进度归一）
+    private LevelRunPlan _plan;
+    private LevelEconomyConfig _economy;
+    private int _runCoins;
+    private bool _appPaused, _settled;
+    private readonly LevelTileEffectResolver _effectTimer = new LevelTileEffectResolver();
 
     // 关卡
     private int _level = 1;                                        // 当前关卡（ResetWorld 从存档刷新）
@@ -253,7 +162,6 @@ public class JumpGame : MonoBehaviour
             inst._runTransitioning = true;
             inst._presentationVersion++;
             inst.State = JumpState.Idle;
-            await inst.CloseWheelForTransitionAsync();
             inst.ReleaseTimeFreeze();
             inst.ClearWorld(); // 池实例挂在 DontDestroyOnLoad 的 PoolRoot 下，必须显式回收（否则孤儿方块残留场景）
             Destroy(inst.gameObject); // OnDestroy 反注册事件
@@ -304,29 +212,6 @@ public class JumpGame : MonoBehaviour
             Debug.LogWarning("[JumpGame] 方块池模板缺失，回退为直建直毁（请执行菜单 JumpGame/1. Create Assets）");
         if (this == null) return; // 等待期间被销毁（回主页等）
 
-        // 砖上物品模型预载（六种一次载入缓存；缺失仅无悬浮演出，不阻塞）
-        for (int k = (int)JumpItemKind.Wheel; k <= (int)JumpItemKind.Sprint; k++)
-        {
-            var kind = (JumpItemKind)k;
-            string itemKey = JumpConfig.GetItemResKey(kind);
-            var itemPrefab = await ResMgr.Instance.LoadAssetAsync<GameObject>(itemKey);
-            if (this == null) return;
-            if (itemPrefab != null) _itemModels[kind] = itemPrefab;
-            else Debug.LogWarning($"[JumpGame] 物品模型缺失: {itemKey}（该物品将无悬浮演出）");
-        }
-
-        // 陷阱标记模型预载（七种；缺失仅无标记，不阻塞）
-        for (int k = (int)JumpTrapKind.Slippery; k <= (int)JumpTrapKind.Seal; k++)
-        {
-            var kind = (JumpTrapKind)k;
-            string trapKey = JumpConfig.GetTrapResKey(kind);
-            var trapPrefab = await ResMgr.Instance.LoadAssetAsync<GameObject>(trapKey);
-            if (this == null) return;
-            if (trapPrefab != null) _trapModels[kind] = trapPrefab;
-            else Debug.LogWarning($"[JumpGame] 陷阱标记模型缺失: {trapKey}（该陷阱将无标记）");
-        }
-
-        // 角色与粒子
         _character = JumpCharacter.Create(transform);
         _fx = JumpFx.Create(transform);
 
@@ -357,11 +242,10 @@ public class JumpGame : MonoBehaviour
 
         // 有限关卡：经济配置 + 本局计划解析（编辑器试玩注入优先；无包回退旧无限模式）
         _economy = await LevelRuntime.LoadEconomyAsync();
-        _resolver = new LevelTileEffectResolver(_economy);
         if (this == null) return;
         _plan = await LevelRuntime.ResolvePlanForNewRunAsync();
         if (this == null) return;
-        if (LevelRuntime.Status == LevelRuntime.PackStatus.SchemaUnsupported)
+        if (_plan?.IsPlaytest != true && (LevelRuntime.Status == LevelRuntime.PackStatus.SchemaUnsupported || LevelRuntime.Status == LevelRuntime.PackStatus.Corrupt))
         {
             // 不支持的关卡包结构：阻止开局并提示更新（策划案）
             Debug.LogError("[JumpGame] 关卡包版本不受支持：已阻止开局，请更新游戏");
@@ -392,12 +276,11 @@ public class JumpGame : MonoBehaviour
         State = JumpState.Idle; // Invalidate old actions before any await or pool reuse.
         try
         {
-            await CloseWheelForTransitionAsync();
             var plan = await LevelRuntime.ResolvePlanForNewRunAsync();
             if (this == null || Instance != this || version != _presentationVersion) return;
             _userPaused = false;
             ApplyTimeFreeze();
-            if (LevelRuntime.Status == LevelRuntime.PackStatus.SchemaUnsupported)
+            if (plan?.IsPlaytest != true && (LevelRuntime.Status == LevelRuntime.PackStatus.SchemaUnsupported || LevelRuntime.Status == LevelRuntime.PackStatus.Corrupt))
             {
                 Debug.LogError("[JumpGame] 关卡包版本不受支持：已阻止开局，请更新游戏");
                 ClearWorld();
@@ -425,7 +308,6 @@ public class JumpGame : MonoBehaviour
     private void ResetWorld()
     {
         _userPaused = false;
-        _wheelOpen = false;
         ApplyTimeFreeze();
         _presentationVersion++;
         State = JumpState.Idle; // 先置 Idle 使在途动画/跳跃循环失效
@@ -438,30 +320,15 @@ public class JumpGame : MonoBehaviour
         _combo = 0;
         _maxCombo = 0;
         _perfectCount = 0;
-        _itemTimer = 0f;
         _swallowNextRelease = false;
         EverCharged = false;
-        _scoreMult = 0f;
-        _perfectExtra = 0;
-        _shieldCount = 0;
-        _runDouble = false;
-        _slowChargeCount = 0;
-        _chargeScale = 1f;
-        _reverseNext = false;
-        _burnBlock = null;
-        _burnRemain = 0f;
-        _phantomBlock = null;
-        _phantomRemain = 0f;
-        _phantomTotal = 0f;
-        _phantomCount = 0;
-        _lastPhantomIndex = -10;
         _runCoins = 0;
-        _coinDouble = false;
-        _wheelOpen = false;
+        _settled = false;
+        _effectTimer.Reset();
 
         if (_plan != null)
         {
-            // ---- 有限关卡：整关全量铺烘焙瓦片（0..终点；尺寸/位置/物品/陷阱按格烘焙）----
+            // ---- 有限关卡：整关全量铺烘焙瓦片（0..终点；尺寸/位置/类型/等级按格烘焙）----
             _level = _plan.Seq;
             _levelTarget = _plan.EndIndex;
             _levelStart = 0;
@@ -504,27 +371,17 @@ public class JumpGame : MonoBehaviour
 
     // ---------- 有限关卡：世界构建与轴 ----------
 
-    /// <summary>按烘焙瓦片铺块：位置为烘焙终点（含震荡横移）——震荡格初位于理想落点，触发陷阱时滑到位</summary>
     private void SpawnBlockFromPlanTile(int i)
     {
-        bool goal = i == _plan.EndIndex;
-        var trap = (JumpTrapKind)_plan.Traps[i];
-        var item = (JumpItemKind)_plan.Rewards[i];
-        Vector3 pos = _plan.Position(i);
-        if (i > 0 && Mathf.Abs(_plan.ShakeOffsets[i]) > 0.0005f)
-            pos -= LateralOf(_plan.ArrivalAxis[i]) * _plan.ShakeOffsets[i]; // 初位 = 烘焙终点 - 横移
-
-        var block = CreateBlockObject(pos);
-        Color color = goal ? JumpConfig.GoalBlockColor
-            : trap != JumpTrapKind.None ? JumpConfig.GetTrapBlockColor(trap)
-            : PickBlockColor();
-        block.Setup(i, _plan.Sizes[i], color, trap == JumpTrapKind.Phantom, !goal && trap == JumpTrapKind.None);
-        block.ItemKind = item;
-        block.TrapKind = trap;
-        if (item != JumpItemKind.None)
-            block.ShowItemModel(_itemModels.TryGetValue(item, out var prefab) ? prefab : null);
-        else if (trap != JumpTrapKind.None)
-            block.ShowItemModel(_trapModels.TryGetValue(trap, out var tPrefab) ? tPrefab : null);
+        var block = CreateBlockObject(_plan.Position(i));
+        block.Setup(i, _plan.Sizes[i], _plan.Kinds[i], _plan.EffectLevelIds[i], TravelAxis(i));
+        if (_plan.Kinds[i] == TileKind.Sprint)
+        {
+            int steps = _plan.Source.Effects.GetSprint(_plan.EffectLevelIds[i]).Steps;
+            var path = new Vector3[steps + 1];
+            for (int j = 0; j <= steps; j++) path[j] = _plan.Position(i + j);
+            block.ShowSprintPath(path);
+        }
         _blocks.Add(block);
     }
 
@@ -533,10 +390,6 @@ public class JumpGame : MonoBehaviour
         => _plan != null
             ? (_plan.TravelAxis(fromIndex) == TileAxis.X ? Vector3.right : Vector3.forward)
             : AxisOf(fromIndex);
-
-    /// <summary>横轴（垂直于行进轴；震荡烘焙偏移方向）</summary>
-    private static Vector3 LateralOf(TileAxis axis)
-        => axis == TileAxis.X ? Vector3.forward : Vector3.right;
 
     /// <summary>第 jumpIndex 跳的行进轴（0 起，之字交替 +X/+Z）</summary>
     private static Vector3 AxisOf(int jumpIndex)
@@ -557,52 +410,10 @@ public class JumpGame : MonoBehaviour
             pos = prev.TopCenter + axis * d;
         }
 
-        // 分配：陷阱优先、物品互斥（一块只带一种）；GM 强制通道各自把关
-        JumpTrapKind trap = RollTrapFor(index, goal);
-        JumpItemKind item = trap == JumpTrapKind.None ? RollItemFor(index, goal) : JumpItemKind.None;
-
         var block = CreateBlockObject(pos);
-        Color color = goal ? JumpConfig.GoalBlockColor
-            : trap != JumpTrapKind.None ? JumpConfig.GetTrapBlockColor(trap)
-            : PickBlockColor();
-        block.Setup(index, size, color, trap == JumpTrapKind.Phantom, !goal && trap == JumpTrapKind.None);
-        block.ItemKind = item;
-        block.TrapKind = trap;
-        if (item != JumpItemKind.None)
-            block.ShowItemModel(_itemModels.TryGetValue(item, out var prefab) ? prefab : null);
-        else if (trap != JumpTrapKind.None)
-            block.ShowItemModel(_trapModels.TryGetValue(trap, out var tPrefab) ? tPrefab : null);
+        block.Setup(index, size, goal ? TileKind.End : index == 0 ? TileKind.Start : TileKind.Normal, 0, AxisOf(index));
         _blocks.Add(block);
         return block;
-    }
-
-    /// <summary>陷阱滚动：起手区/终点块/L1 零陷阱（新手保护）；幻影≤2 且绝不连续；反向仅高阶关；GM 强制第 4 块优先</summary>
-    private JumpTrapKind RollTrapFor(int index, bool goal)
-    {
-        if (goal || index < JumpConfig.TrapFirstIndex || index >= _levelTarget) return JumpTrapKind.None;
-        if (index == 3 && _gmTrapKind != JumpTrapKind.None) return _gmTrapKind; // GM 通道越过所有门槛（测试用）
-        if (_level < JumpConfig.TrapMinLevel) return JumpTrapKind.None;
-        if (RandomUtil.Range(0, 100) >= JumpConfig.TrapSpawnChance * 100f) return JumpTrapKind.None;
-
-        var kind = JumpConfig.RollTrapKind();
-        if (kind == JumpTrapKind.Reverse && _level < JumpConfig.ReverseMinLevel) return JumpTrapKind.None;
-        if (kind == JumpTrapKind.Phantom)
-        {
-            if (_phantomCount >= JumpConfig.PhantomMaxPerLevel) return JumpTrapKind.None;
-            if (index == _lastPhantomIndex + 1) return JumpTrapKind.None; // 绝不连续刷
-            _phantomCount++;
-            _lastPhantomIndex = index;
-        }
-        return kind;
-    }
-
-    /// <summary>物品滚动：起手区/终点块不刷；GM 强制第 3 块优先</summary>
-    private JumpItemKind RollItemFor(int index, bool goal)
-    {
-        if (goal || index < JumpConfig.ItemFirstIndex || index >= _levelTarget) return JumpItemKind.None;
-        if (index == JumpConfig.ItemFirstIndex && _gmItemKind != JumpItemKind.None) return _gmItemKind;
-        if (RandomUtil.Range(0, 100) < JumpConfig.ItemSpawnChance * 100f) return JumpConfig.RollItemKind();
-        return JumpItemKind.None;
     }
 
     private Color PickBlockColor()
@@ -652,19 +463,17 @@ public class JumpGame : MonoBehaviour
 
     private void OnDragStart(DragArgs args)
     {
-        if (this == null || Instance != this || State != JumpState.Ready || TrapTimeFrozen) return;
+        if (this == null || Instance != this || State != JumpState.Ready || TimeFrozen) return;
         if (InputMgr.Instance.RaycastUI(args.Position) != null) return; // 按在 UI（按钮/遮罩/控制台）上不蓄力
         BeginCharge();
     }
 
     private void BeginCharge()
     {
-        if (State != JumpState.Ready || TrapTimeFrozen) return;
+        if (State != JumpState.Ready || TimeFrozen) return;
         _swallowNextRelease = false;
         State = JumpState.Charging;
         _chargeStart = Time.time;
-        _chargeScale = _slowChargeCount > 0 ? JumpConfig.SlowChargeFactor : 1f; // 迷雾：本次蓄力减速
-        _itemTimer = 0f; // 蓄力即中断物品停留
         EverCharged = true;
     }
 
@@ -677,7 +486,7 @@ public class JumpGame : MonoBehaviour
             return;
         }
         if (State != JumpState.Charging) return;
-        if (args.Canceled || TrapTimeFrozen || ChargeElapsed >= JumpConfig.ChargeCancelSeconds ||
+        if (args.Canceled || TimeFrozen || ChargeElapsed >= JumpConfig.ChargeCancelSeconds ||
             (UIBattleView.Active != null && UIBattleView.Active.IsInCancelZone(args.Position)))
         {
             CancelCharge();
@@ -690,7 +499,7 @@ public class JumpGame : MonoBehaviour
     {
         if (State != JumpState.Charging) return 0f;
         float p = ChargePhase;
-        return _reverseNext ? 1f - p : p; // 反向蓄力陷阱：短按=跳得远，长按=跳得近
+        return p;
     }
 
     private void OnWxHide()
@@ -703,14 +512,10 @@ public class JumpGame : MonoBehaviour
 
     private void DoJump(float power)
     {
-        // 陷阱状态随起跳消耗：迷雾-1 次；反向只作用一次（power 已在 GetPower 内反转）
-        if (_chargeScale > 1f && _slowChargeCount > 0) _slowChargeCount--;
-        _reverseNext = false;
-
         Vector3 axis = TravelAxis(_current.Index);
         Vector3 from = _character.transform.position;
         float dist = Mathf.Lerp(JumpConfig.MinJumpDist, JumpConfig.MaxJumpDist, power);
-        Vector3 to = _current.TopCenter + axis * dist;
+        Vector3 to = _current.TopCenter + axis * (Vector3.Dot(from - _current.TopCenter, axis) + dist);
         JumpAsync(from, to, dist, power, axis).Forget();
     }
 
@@ -753,7 +558,6 @@ public class JumpGame : MonoBehaviour
 
         if (onNext) { LandOnBlock(landPos, _next, offNext, halfNext, true); return; }
         if (onCur) { LandOnBlock(landPos, _current, offCur, halfCur, false); return; }
-        if (_shieldCount > 0) { ShieldRevive(); return; } // 护盾：掉落免疫，自动复活不中断
         DieAsync(landPos, axis).Forget();
     }
 
@@ -780,7 +584,7 @@ public class JumpGame : MonoBehaviour
             _combo++;
             _maxCombo = Mathf.Max(_maxCombo, _combo);
             _perfectCount++;
-            gain = Mathf.Min(1 << _combo, JumpConfig.PerfectComboCap); // 2/4/8/16/32…
+            gain = Mathf.Min(1 << Mathf.Min(_combo, 5), JumpConfig.PerfectComboCap); // 2/4/8/16/32…
             JumpAudio.Play(JumpConfig.SfxPerfect, 1f);
             _fx.Stars(landPos);
             EventCenter.Dispatch(JumpEvents.Perfect, _combo);
@@ -790,9 +594,6 @@ public class JumpGame : MonoBehaviour
             _combo = 0;
             gain = JumpConfig.BaseLandScore;
         }
-        // 积分增益砖倍率 + 完美额外分 + 转盘双倍收益（顺序：基础→倍率加成→双倍）
-        gain = Mathf.RoundToInt(gain * (1f + _scoreMult)) + (perfect ? _perfectExtra : 0);
-        if (_runDouble) gain *= 2;
         Score += gain;
 
         if (Mathf.Abs(off) > half * JumpConfig.WobbleStartScale)
@@ -800,10 +601,7 @@ public class JumpGame : MonoBehaviour
 
         // 推进世界（整关已全量加载：只推进游标，不再生成）
         _current = block;
-        _itemTimer = 0f;
-        if (_burnBlock != null && _burnBlock != block) _burnBlock = null; // 及时起跳逃离燃烧砖：倒计时解除
-        if (_phantomBlock != null && _phantomBlock != block)
-            _phantomBlock = null; // 幻影：倒计时内跳走即规避（离开后塌陷不再追杀）
+        _effectTimer.Reset();
         _next = FindBlock(block.Index + 1);
         _character.FaceAxis(TravelAxis(_current.Index));
         DispatchScore(gain, perfect, landPos);
@@ -816,7 +614,8 @@ public class JumpGame : MonoBehaviour
         }
 
         State = JumpState.Ready;
-        TriggerTrap(block); // 陷阱砖：落地即触发（终点块无陷阱；未触发过的才生效）
+        if (block.Kind == TileKind.Sprint)
+            SprintAsync(_plan.Source.Effects.GetSprint(block.EffectLevelId)).Forget();
     }
 
     private void DispatchScore(int gain, bool perfect, Vector3 pos)
@@ -837,6 +636,7 @@ public class JumpGame : MonoBehaviour
     {
         int version = _presentationVersion;
         State = JumpState.Dead;
+        _combo = 0;
         _character.ResetVisual();
         _character.PlayFall();
         JumpAudio.Play(JumpConfig.SfxFall, 1f);
@@ -866,16 +666,16 @@ public class JumpGame : MonoBehaviour
 
     private void FinishRun(bool cleared = false)
     {
+        if (_settled) return;
+        _settled = true;
         State = JumpState.Over;
 
         if (_plan != null)
         {
-            // ---- 有限关卡结算：金币统一入账（含通关金币 × 档位倍率）+ 单关最高分 + 累计通关数 ----
-            if (cleared && _economy != null && !_plan.IsPlaytest)
-                AddRunCoins(Mathf.RoundToInt(_economy.clearCoinBase * _plan.ClearCoinMult));
-            int coinsGained = _runCoins;
-            if (coinsGained > 0 && !_plan.IsPlaytest)
-                PlayerMgr.Instance.AddCoins(coinsGained); // 试玩局不落任何进度与经济
+            var reward = _economy.Calculate(cleared, _plan.IsPlaytest, _plan.ClearCoinMult, _maxCombo);
+            int coinsGained = reward.Total;
+            _runCoins = coinsGained;
+            if (coinsGained > 0) PlayerMgr.Instance.AddCoins(coinsGained);
 
             var result = LevelRuntime.ReportRun(_plan, Score, coinsGained, cleared);
             var rec = LevelRuntime.GetRecord(_plan.LevelId);
@@ -893,6 +693,8 @@ public class JumpGame : MonoBehaviour
                 LevelTarget = _plan.TargetJumps,
                 LevelCleared = cleared,
                 CoinsGained = coinsGained,
+                BaseCoins = reward.BaseCoins,
+                ComboCoins = reward.ComboCoins,
                 LevelId = _plan.LevelId,
                 NextLevelName = cleared ? LevelRuntime.NextLevelDisplayName(_plan.Seq) : null,
             };
@@ -949,524 +751,77 @@ public class JumpGame : MonoBehaviour
         FinishRun(true);
     }
 
-    // ---------- 砖上物品（停留 1.5s 自动触发） ----------
-
-    /// <summary>触发砖上物品效果（统一演出：收模型/撒花/音效/震动；效果按类型分发）</summary>
-    private void TriggerItem(JumpItemKind kind)
-    {
-        _itemTimer = 0f;
-        _current.PlayItemCollect();
-        JumpAudio.Play(JumpConfig.SfxBonus, 1f);
-        WeChatService.Vibrate(false);
-        _fx.Confetti(_current.TopCenter + Vector3.up * 0.5f);
-        EventCenter.Dispatch(JumpEvents.ItemCollected, kind);
-
-        if (_plan != null)
-        {
-            TriggerPlannedItem(kind); // 有限关卡：数值经效果解析器（全局经济配置 + effectSeed）
-            return;
-        }
-
-        switch (kind)
-        {
-            case JumpItemKind.Wheel:
-                // 弹窗挂 Popup 层：全局遮罩自动阻断蓄力输入，关闭后恢复操作
-                OpenWheelAsync().Forget();
-                break;
-            case JumpItemKind.ScoreBoost:
-                _scoreMult = Mathf.Min(JumpConfig.ScoreBoostMax, _scoreMult + JumpConfig.ScoreBoostPerStack);
-                _perfectExtra = JumpConfig.ScoreBoostPerfectBonus;
-                EventCenter.Dispatch(JumpEvents.Toast,
-                    $"积分倍率 +{(int)(JumpConfig.ScoreBoostPerStack * 100f)}%（当前 +{(int)(_scoreMult * 100f)}%）");
-                break;
-            case JumpItemKind.CoinBag:
-                int coins = ApplyRunMult(JumpConfig.CoinBagFixed + RandomUtil.Range(0, JumpConfig.CoinBagRandom + 1));
-                PlayerMgr.Instance.AddCoins(coins);
-                _runCoins += coins; // Legacy mode already credits wallet; HUD only records this run.
-                EventCenter.Dispatch(JumpEvents.Toast, $"金币 +{coins}");
-                break;
-            case JumpItemKind.Shard:
-                int shards = ApplyRunMult(JumpConfig.ShardAmount + RandomUtil.Range(0, JumpConfig.ShardRandom + 1));
-                PlayerMgr.Instance.AddShards(shards);
-                EventCenter.Dispatch(JumpEvents.Toast, $"皮肤碎片 +{shards}");
-                break;
-            case JumpItemKind.Shield:
-                _shieldCount++;
-                EventCenter.Dispatch(JumpEvents.Toast, $"护盾 ×{_shieldCount} 已就绪");
-                break;
-            case JumpItemKind.Sprint:
-                SprintAsync().Forget();
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 有限关卡：按效果解析器结算砖上奖励（数值出口=全局经济配置+烘焙 effectSeed）。
-    /// 金币砖/护盾转换金币/转盘金币走本关累计（结算统一入账）；转盘打开期间冻结陷阱计时。
-    /// </summary>
-    private void TriggerPlannedItem(JumpItemKind kind)
-    {
-        var res = _resolver.ResolveLanding(_plan.Tile(_current.Index), new RunStateSnapshot
-        {
-            ShieldCount = _shieldCount,
-            CoinDoubleActive = _coinDouble,
-            ScoreMult = _scoreMult,
-        });
-        switch (kind)
-        {
-            case JumpItemKind.Wheel:
-                OpenWheelAsync().Forget();
-                break;
-            case JumpItemKind.ScoreBoost:
-                _scoreMult = Mathf.Min(res.ScoreMultCap, _scoreMult + res.ScoreMultAdd);
-                _perfectExtra = JumpConfig.ScoreBoostPerfectBonus;
-                EventCenter.Dispatch(JumpEvents.Toast,
-                    $"积分倍率 +{(int)(res.ScoreMultAdd * 100f)}%（当前 +{(int)(_scoreMult * 100f)}%）");
-                break;
-            case JumpItemKind.CoinBag:
-                AddRunCoins(res.Coins);
-                EventCenter.Dispatch(JumpEvents.Toast, $"金币 +{res.Coins}");
-                break;
-            case JumpItemKind.Shard:
-                PlayerMgr.Instance.AddShards(res.Shards);
-                EventCenter.Dispatch(JumpEvents.Toast, $"皮肤碎片 +{res.Shards}");
-                break;
-            case JumpItemKind.Shield:
-                if (res.ShieldConvertCoins)
-                {
-                    // 护盾存在时再次踩中：转换为金币（策划案）
-                    AddRunCoins(res.Coins);
-                    EventCenter.Dispatch(JumpEvents.Toast, $"护盾已就绪：转换为金币 +{res.Coins}");
-                }
-                else
-                {
-                    _shieldCount++;
-                    EventCenter.Dispatch(JumpEvents.Toast, $"护盾 ×{_shieldCount} 已就绪");
-                }
-                break;
-            case JumpItemKind.Sprint:
-                SprintPlanAsync(res.SprintLandIndex).Forget();
-                break;
-        }
-    }
-
-    /// <summary>本关金币累计（结算统一入账；翻倍激活时新入账自动 ×2）</summary>
-    public void AddRunCoins(int amount)
-    {
-        if (amount <= 0) return;
-        _runCoins += _coinDouble ? amount * 2 : amount;
-    }
-
-    /// <summary>转盘"本关金币收益翻倍"：覆盖通关金币与全部金币砖收益（含触发转盘前已得——累计制回溯）</summary>
-    public void SetRunCoinDouble()
-    {
-        if (_coinDouble) return;
-        _coinDouble = true;
-        _runCoins *= 2;
-        EventCenter.Dispatch(JumpEvents.Toast, $"本关金币收益 ×2！（累计 {_runCoins}）");
-    }
-
-    /// <summary>护盾生效：坠落自动复活回最近安全格（所站块顶心），不中断本局</summary>
-    private void ShieldRevive()
-    {
-        _shieldCount--;
-        _character.ResetVisual();
-        _character.SnapTo(_current.TopCenter);
-        _character.FaceAxis(TravelAxis(_current.Index));
-        _fx.Stars(_current.TopCenter);
-        JumpAudio.Play(JumpConfig.SfxLand, 1f);
-        WeChatService.Vibrate(false);
-        State = JumpState.Ready;
-        EventCenter.Dispatch(JumpEvents.Toast, "护盾生效，自动复活！");
-    }
-
-    /// <summary>终点冲刺：连续小跳掠过 3 块（不产出得分），落在块上照常推进/触发下一物品</summary>
-    private async UniTaskVoid SprintAsync()
+    // ---------- 特殊格：自动蓄力、连续安全小跳 ----------
+    private async UniTaskVoid SprintAsync(SprintLevel effect)
     {
         int version = _presentationVersion;
-        int from = _current.Index;
-        int to = Mathf.Min(from + JumpConfig.SprintSkipBlocks, _levelTarget);
-        State = JumpState.Airborne; // 占用状态阻断输入；逐跳推进游标让镜头平滑跟随
-        for (int i = from + 1; i <= to; i++)
-        {
-            var b = FindBlock(i);
-            if (b == null) break;
-            await HopAsync(_character.transform.position, b.TopCenter);
-            if (!IsRunActive(version) || State != JumpState.Airborne) return; // 重开/退出打断
-            _character.transform.position = b.TopCenter;
-            _fx.Dust(b.TopCenter);
-            _current = b;
-            _next = FindBlock(b.Index + 1);
-            _character.FaceAxis(TravelAxis(_current.Index));
-            DispatchScore(0, false, b.TopCenter); // 刷新 HUD 关卡进度
-        }
-        if (_current.Index >= _levelTarget)
-        {
-            LevelClearAsync().Forget(); // 冲刺直达终点：通关
-            return;
-        }
-        State = JumpState.Ready;
-    }
-
-    /// <summary>冲刺单跳：短弧滑行（纯推进演出）</summary>
-    private async UniTask HopAsync(Vector3 from, Vector3 to)
-    {
-        int version = _presentationVersion;
-        _character.PlayLaunch(JumpConfig.SprintHopSeconds);
-        float t = 0f;
-        while (t < JumpConfig.SprintHopSeconds)
+        int destination = _current.Index + effect.Steps;
+        State = JumpState.Airborne;
+        for (float t = 0; t < effect.ChargeSeconds; t += Time.deltaTime)
         {
             if (!IsRunActive(version) || State != JumpState.Airborne) return;
-            t += Time.deltaTime;
-            float p = Mathf.Clamp01(t / JumpConfig.SprintHopSeconds);
-            Vector3 pos = Vector3.Lerp(from, to, p);
-            pos.y = JumpConfig.SprintHopHeight * 4f * p * (1f - p);
-            _character.transform.position = pos;
-            await UniTask.Yield();
-        }
-        await WaitForPresentationResumeAsync(version);
-        if (IsRunActive(version) && State == JumpState.Airborne)
-            _character.PlayLand();
-    }
-
-    /// <summary>
-    /// 有限关卡冲刺（策划案）：不可打断的 1.2s 演出，自动越过后面 3 格落到第 4 格；
-    /// 被跳过格不触发、不计分；落点为普通安全格（生成期保证），按普通落地推进并给基础分（不判完美）。
-    /// </summary>
-    private async UniTaskVoid SprintPlanAsync(int landIndex)
-    {
-        int version = _presentationVersion;
-        int from = _current.Index;
-        int to = Mathf.Clamp(landIndex, from + 1, _plan.EndIndex - 1); // 生成期保证不越终点
-        State = JumpState.Airborne; // 占用状态阻断输入（重开/退出仍可打断演出循环）
-        _itemTimer = 0f;
-
-        // 先推进游标：镜头随冲刺落点平滑跟随
-        var landBlock = FindBlock(to);
-        _current = landBlock;
-        _next = FindBlock(to + 1);
-        _character.FaceAxis(TravelAxis(from));
-        _character.PlayLaunch(JumpConfig.LevelSprintSeconds);
-        JumpAudio.Play(JumpConfig.SfxFly, 0.9f);
-
-        Vector3 start = _character.transform.position;
-        Vector3 target = landBlock != null ? landBlock.TopCenter : _plan.Position(to);
-        float t = 0f;
-        while (t < JumpConfig.LevelSprintSeconds)
-        {
-            if (!IsRunActive(version) || State != JumpState.Airborne) return;
-            t += Time.deltaTime;
-            float p = Mathf.Clamp01(t / JumpConfig.LevelSprintSeconds);
-            Vector3 pos = Vector3.Lerp(start, target, p);
-            pos.y = JumpConfig.LevelSprintHeight * 4f * p * (1f - p);
-            _character.transform.position = pos;
-            await UniTask.Yield();
-        }
-        if (!IsRunActive(version) || State != JumpState.Airborne) return;
-
-        await WaitForPresentationResumeAsync(version);
-        if (!IsRunActive(version) || State != JumpState.Airborne) return;
-        // 落地：普通推进（被跳过格不触发不计分；演出落地不判完美、清连击）
-        _character.transform.position = target;
-        _character.PlayLand();
-        _fx.Dust(target);
-        JumpAudio.Play(JumpConfig.SfxLand, 1f);
-        WeChatService.Vibrate(false);
-        _dipTime = 0f;
-        _combo = 0;
-        int gain = Mathf.RoundToInt(JumpConfig.BaseLandScore * (1f + _scoreMult));
-        Score += gain;
-        _character.FaceAxis(TravelAxis(_current.Index));
-        DispatchScore(gain, false, target);
-        if (_current.Index >= _levelTarget)
-        {
-            LevelClearAsync().Forget(); // 防御（生成期保证冲刺不直达终点）
-            return;
-        }
-        State = JumpState.Ready;
-    }
-
-    /// <summary>幸运转盘奖励：本局收益翻倍（积分与金币产出 ×2）</summary>
-    public void SetRunRewardDoubled()
-    {
-        if (_runDouble) return;
-        _runDouble = true;
-        EventCenter.Dispatch(JumpEvents.Toast, "本局收益 ×2！");
-    }
-
-    /// <summary>本局金币产出套用倍率（双倍收益时 ×2；金币袋/转盘金币统一入口）</summary>
-    public int ApplyRunMult(int amount)
-        => _runDouble ? amount * 2 : amount;
-
-    // ---------- 陷阱砖（落地即触发；全部带预警、可规避、无秒杀） ----------
-
-    /// <summary>触发当前块陷阱（若携带且未触发过）：收标记、低音警示，效果按类型分发</summary>
-    private void TriggerTrap(JumpBlock block)
-    {
-        if (block == null || block.TrapConsumed) return;
-        var kind = block.TrapKind;
-        if (kind == JumpTrapKind.None) return;
-        block.TrapConsumed = true;
-        block.PlayItemCollect(); // 收走标记模型（复用物品容器）
-        WeChatService.Vibrate(false);
-
-        if (_plan != null)
-        {
-            TriggerPlannedTrap(block, kind); // 有限关卡：效果参数由解析器给出（烘焙 effectSeed）
-            return;
-        }
-
-        switch (kind)
-        {
-            case JumpTrapKind.Slippery:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                EventCenter.Dispatch(JumpEvents.Toast, "小心打滑！");
-                SlipperySlideAsync(block, RandomUtil.Range(0f, 360f),
-                    block.Size * JumpConfig.SlipperySlideRatio).Forget();
-                break;
-            case JumpTrapKind.Phantom:
-                JumpAudio.Play(JumpConfig.SfxFall, 1f);
-                CollapseAsync(block, "护盾抵挡了幻影砖！").Forget();
-                break;
-            case JumpTrapKind.SlowCharge:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                _slowChargeCount = JumpConfig.SlowChargeJumps;
-                EventCenter.Dispatch(JumpEvents.Toast,
-                    $"蓄力减速！接下来 {JumpConfig.SlowChargeJumps} 次蓄力变慢");
-                break;
-            case JumpTrapKind.Shake:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                ShakeNextBlock(block);
-                break;
-            case JumpTrapKind.Burn:
-                JumpAudio.Play(JumpConfig.SfxFall, 0.6f);
-                _burnBlock = block;
-                _burnRemain = JumpConfig.BurnSeconds;
-                _burnTotal = _burnRemain;
-                EventCenter.Dispatch(JumpEvents.Toast, "灼烧！快起跳！");
-                break;
-            case JumpTrapKind.Reverse:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                _reverseNext = true;
-                EventCenter.Dispatch(JumpEvents.Toast, "下一次蓄力反转：短按跳远！");
-                break;
-            case JumpTrapKind.Seal:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                SealItems();
-                EventCenter.Dispatch(JumpEvents.Toast, "封印！本关剩余物品已隐匿");
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 有限关卡陷阱（策划案数值）：打滑 0.12m 定向（effectSeed 方向）；幻影 1.5s 闪烁后塌陷（跳走可规避）；
-    /// 减速刷新为 3 次不叠加；震荡滑向烘焙错位终点（生成期已过可达性校验）；燃烧 2.5s；反向/封印同旧。
-    /// </summary>
-    private void TriggerPlannedTrap(JumpBlock block, JumpTrapKind kind)
-    {
-        var res = _resolver.ResolveLanding(_plan.Tile(block.Index), null);
-        switch (kind)
-        {
-            case JumpTrapKind.Slippery:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                EventCenter.Dispatch(JumpEvents.Toast, "小心打滑！");
-                SlipperySlideAsync(block, res.SlipperyAngleDeg, res.SlipperyOffset).Forget();
-                break;
-            case JumpTrapKind.Phantom:
-                JumpAudio.Play(JumpConfig.SfxFall, 1f);
-                _phantomBlock = block;
-                _phantomRemain = res.PhantomCollapseSeconds;
-                _phantomTotal = Mathf.Max(0.01f, res.PhantomCollapseSeconds);
-                block.SetPhantomBlink(0f);
-                EventCenter.Dispatch(JumpEvents.Toast, "幻影砖塌陷中！快跳走！");
-                break;
-            case JumpTrapKind.SlowCharge:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                _slowChargeCount = res.SlowChargeJumps; // 再触发只刷新为 3 次，不叠加
-                EventCenter.Dispatch(JumpEvents.Toast,
-                    $"蓄力减速！接下来 {res.SlowChargeJumps} 次蓄力变慢");
-                break;
-            case JumpTrapKind.Shake:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                ShakePlannedSlideAsync(block).Forget();
-                break;
-            case JumpTrapKind.Burn:
-                JumpAudio.Play(JumpConfig.SfxFall, 0.6f);
-                _burnBlock = block;
-                _burnRemain = res.BurnSeconds;
-                _burnTotal = _burnRemain;
-                EventCenter.Dispatch(JumpEvents.Toast, "灼烧！快起跳！");
-                break;
-            case JumpTrapKind.Reverse:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                _reverseNext = true;
-                EventCenter.Dispatch(JumpEvents.Toast, "下一次蓄力反转：短按跳远！");
-                break;
-            case JumpTrapKind.Seal:
-                JumpAudio.Play(JumpConfig.SfxLand, 0.6f);
-                SealItems();
-                EventCenter.Dispatch(JumpEvents.Toast, "封印！本关剩余物品已隐匿");
-                break;
-        }
-    }
-
-    /// <summary>打滑：定向小幅滑动（目标点钳制在块顶面内——保留 ≥65% 支撑面积，绝不滑向坠落）</summary>
-    private async UniTaskVoid SlipperySlideAsync(JumpBlock block, float angleDeg, float dist)
-    {
-        int version = _presentationVersion;
-        float angle = angleDeg * Mathf.Deg2Rad;
-        var dir = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
-        Vector3 from = _character.transform.position;
-        Vector3 target = from + dir * dist;
-
-        // 限块内：滑移终点钳制到顶面安全范围内
-        Vector3 local = target - block.TopCenter;
-        float lim = Mathf.Max(0.1f, block.Size * 0.5f - 0.15f);
-        local.x = Mathf.Clamp(local.x, -lim, lim);
-        local.z = Mathf.Clamp(local.z, -lim, lim);
-        target = block.TopCenter + local;
-
-        float t = 0f;
-        while (t < JumpConfig.SlipperySlideSeconds)
-        {
-            if (!IsRunActive(version) || State != JumpState.Ready) return; // 起跳/重开打断滑动
-            t += Time.deltaTime;
-            float p = Mathf.Clamp01(t / JumpConfig.SlipperySlideSeconds);
-            _character.transform.position = Vector3.Lerp(from, target, p);
-            await UniTask.Yield();
-        }
-    }
-
-    /// <summary>塌陷（幻影落地 / 燃烧超时）：云簇缩没——有护盾消耗一层传至下一块（进度照常+1）；无护盾坠落</summary>
-    private async UniTaskVoid CollapseAsync(JumpBlock block, string shieldToast)
-    {
-        int version = _presentationVersion;
-        State = JumpState.Airborne; // 占用状态阻断输入
-        WeChatService.Vibrate(true);
-
-        float t = 0f;
-        const float dur = 0.45f;
-        var cloud = block.CloudRoot;
-        Vector3 scale0 = cloud != null ? cloud.localScale : Vector3.one;
-        while (t < dur && cloud != null)
-        {
-            if (!IsRunActive(version)) return;
-            t += Time.deltaTime;
-            cloud.localScale = scale0 * (1f - Mathf.Clamp01(t / dur) * 0.9f);
+            _character.SetCharge(Mathf.Clamp01(t / effect.ChargeSeconds));
             await UniTask.Yield();
         }
         await WaitForPresentationResumeAsync(version);
         if (!IsRunActive(version)) return;
-        if (cloud != null) cloud.gameObject.SetActive(false);
-
-        if (_shieldCount > 0)
+        _current.SetPathVisible(false);
+        while (_current.Index < destination)
         {
-            _shieldCount--;
-            var next = FindBlock(block.Index + 1);
-            if (next == null) { FinishRun(); return; } // 保险（幻影/燃烧不刷终点）
-            _character.ResetVisual();
-            _character.SnapTo(next.TopCenter);
-            _current = next;
-            _next = FindBlock(next.Index + 1);
-            _character.FaceAxis(AxisOf(_current.Index));
-            _fx.Stars(next.TopCenter);
-            JumpAudio.Play(JumpConfig.SfxLand, 1f);
-            EventCenter.Dispatch(JumpEvents.Toast, shieldToast);
-            if (_current.Index >= _levelTarget)
+            var target = FindBlock(_current.Index + 1);
+            if (target == null || target.Kind != TileKind.Normal)
+            { Debug.LogError("[JumpGame] 无效冲刺通道，停止本局"); FinishRun(); return; }
+            Vector3 from = _character.transform.position;
+            Vector3 to = target.TopCenter;
+            _character.FaceAxis(TravelAxis(_current.Index));
+            _character.PlayLaunch(effect.HopSeconds);
+            JumpAudio.Play(JumpConfig.SfxFly, .65f);
+            for (float t = 0; t < effect.HopSeconds; t += Time.deltaTime)
             {
-                LevelClearAsync().Forget(); // 传至终点：通关
-                return;
+                if (!IsRunActive(version) || State != JumpState.Airborne) return;
+                float p = Mathf.Clamp01(t / effect.HopSeconds);
+                _character.transform.position = Vector3.Lerp(from, to, p) + Vector3.up * (1.2f * 4 * p * (1 - p));
+                await UniTask.Yield();
             }
-            State = JumpState.Ready;
+            await WaitForPresentationResumeAsync(version);
+            if (!IsRunActive(version) || State != JumpState.Airborne) return;
+            _character.SnapTo(to);
+            _character.PlayLand();
+            _fx.Dust(to);
+            JumpAudio.Play(JumpConfig.SfxLand, .8f);
+            _current = target;
+            _next = FindBlock(target.Index + 1);
+            DispatchScore(0, false, to);
         }
-        else
-        {
-            DieAsync(_character.transform.position, TravelAxis(block.Index)).Forget();
-        }
+        _effectTimer.Reset();
+        _character.FaceAxis(TravelAxis(_current.Index));
+        _swallowNextRelease = true;
+        State = JumpState.Ready;
     }
 
-    /// <summary>震荡：下一块沿横轴轻微偏移滑行（心距可达性保护——偏移若破坏必达则反向/减半）</summary>
-    private void ShakeNextBlock(JumpBlock block)
+    private void TickSpecialTile(float deltaTime)
     {
-        var next = FindBlock(block.Index + 1);
-        if (next == null) return;
-        Vector3 axis = AxisOf(block.Index); // 当前跳行进轴
-        Vector3 lateral = axis == Vector3.right ? Vector3.forward : Vector3.right; // 横轴（=下一跳行进轴，之字交替）
-        float sign = RandomUtil.Range(0, 2) == 0 ? -1f : 1f;
-        float delta = JumpConfig.ShakeOffset * sign;
-
-        // 可达性保护：偏移会改变"下一块→再下一块"的轴距，须保持在可跳区间
-        var after = FindBlock(next.Index + 1);
-        if (after != null)
+        if (_plan == null || _current == null || deltaTime <= 0) return;
+        if (_current.Kind == TileKind.Ice)
         {
-            Vector3 nextAxis = AxisOf(next.Index);
-            float curDist = Mathf.Abs(Vector3.Dot(after.TopCenter - next.TopCenter, nextAxis));
-            bool Ok(float d)
+            var grade = _plan.Source.Effects.GetIce(_current.EffectLevelId);
+            float slide = _effectTimer.AdvanceIce(grade, deltaTime);
+            _character.transform.position += TravelAxis(_current.Index) * slide;
+            Vector3 local = _character.transform.position - _current.TopCenter;
+            if (LevelTileEffectResolver.Outside(local.x, local.z, _current.Size))
+                DieAsync(_character.transform.position, TravelAxis(_current.Index)).Forget();
+        }
+        else if (_current.Kind == TileKind.Collapse)
+        {
+            var grade = _plan.Source.Effects.GetCollapse(_current.EffectLevelId);
+            bool collapsed = _effectTimer.AdvanceCollapse(grade, deltaTime);
+            _current.SetCollapseProgress(_effectTimer.Elapsed / grade.Seconds);
+            if (collapsed)
             {
-                float axisDelta = Vector3.Dot(lateral * d, nextAxis);
-                return curDist + axisDelta <= JumpConfig.MaxCenterDist - 0.05f
-                    && curDist + axisDelta >= JumpConfig.MinJumpDist + 0.05f;
+                _current.Collapse();
+                DieAsync(_character.transform.position, TravelAxis(_current.Index)).Forget();
             }
-            if (!Ok(delta)) delta = -delta;
-            if (!Ok(delta)) delta *= 0.5f;
         }
-        ShakeSlideAsync(next, lateral * delta).Forget();
-        EventCenter.Dispatch(JumpEvents.Toast, "震荡！下一块错位了");
-    }
-
-    /// <summary>震荡滑行：下一块 0.3s 平滑滑到错位位置（标记是子物体随行）</summary>
-    private async UniTaskVoid ShakeSlideAsync(JumpBlock next, Vector3 offset)
-    {
-        int version = _presentationVersion;
-        Vector3 from = next.transform.position;
-        Vector3 to = from + offset;
-        float t = 0f;
-        while (t < JumpConfig.ShakeSlideSeconds)
-        {
-            if (!IsRunActive(version) || next == null) return;
-            t += Time.deltaTime;
-            next.transform.position = Vector3.Lerp(from, to, Mathf.Clamp01(t / JumpConfig.ShakeSlideSeconds));
-            await UniTask.Yield();
-        }
-        await WaitForPresentationResumeAsync(version);
-        if (!IsRunActive(version) || next == null) return;
-        next.transform.position = to;
-    }
-
-    /// <summary>封印：本关全部剩余物品轮廓化——隐藏颜色与发光、实际奖励不变（考验记忆与熟练度）</summary>
-    private void SealItems()
-    {
-        foreach (var b in _blocks)
-        {
-            if (b == null || b.ItemKind == JumpItemKind.None || b.ItemConsumed) continue;
-            b.SealItemVisuals();
-        }
-    }
-
-    /// <summary>有限关卡震荡：下一块滑向烘焙错位终点（0.15–0.25m 横移；生成期已过可达性校验）</summary>
-    private async UniTaskVoid ShakePlannedSlideAsync(JumpBlock block)
-    {
-        int version = _presentationVersion;
-        var next = FindBlock(block.Index + 1);
-        if (next == null) return;
-        int i = next.Index;
-        float offset = _plan.ShakeOffsets[i];
-        if (Mathf.Abs(offset) <= 0.0005f) return;
-        var lateral = LateralOf(_plan.ArrivalAxis[i]);
-        Vector3 from = next.transform.position;
-        Vector3 to = from + lateral * offset;
-        EventCenter.Dispatch(JumpEvents.Toast, "震荡！下一块错位了");
-        float t = 0f;
-        while (t < JumpConfig.ShakeSlideSeconds)
-        {
-            if (!IsRunActive(version) || next == null) return;
-            t += Time.deltaTime;
-            next.transform.position = Vector3.Lerp(from, to, Mathf.Clamp01(t / JumpConfig.ShakeSlideSeconds));
-            await UniTask.Yield();
-        }
-        await WaitForPresentationResumeAsync(version);
-        if (!IsRunActive(version) || next == null) return;
-        next.transform.position = to;
     }
 
     // ---------- 每帧驱动 ----------
@@ -1474,7 +829,7 @@ public class JumpGame : MonoBehaviour
     private void OnTick()
     {
         if (this == null || _character == null) return;
-        if (TrapTimeFrozen) return;
+        if (TimeFrozen) return;
         float dt = Time.deltaTime;
 
         if (State == JumpState.Charging)
@@ -1483,50 +838,17 @@ public class JumpGame : MonoBehaviour
             else _character.SetCharge(GetPower());
         }
 
-        // 暂停、转盘和切后台期间：物品停留与全部陷阱倒计时冻结（策划案）
         if (State == JumpState.Ready || State == JumpState.Charging)
-        {
-            var item = CurrentItem;
-            if (State == JumpState.Ready && item != JumpItemKind.None)
-            {
-                _itemTimer += dt;
-                if (_itemTimer >= JumpConfig.ItemStaySeconds)
-                    TriggerItem(item); // 停留自动触发：无脑领奖
-            }
+            TickSpecialTile(dt);
 
-            // 燃烧倒计时：超时未起跳 → 塌落（护盾可挡；起跳则在 LandOnBlock 解除）
-            if (_burnBlock != null)
-            {
-                _burnRemain -= dt;
-                if (_burnRemain <= 0f)
-                {
-                    var burnBlock = _burnBlock;
-                    _burnBlock = null;
-                    JumpAudio.Play(JumpConfig.SfxFall, 1f);
-                    CollapseAsync(burnBlock, "护盾抵挡了燃烧塌落！").Forget();
-                }
-            }
-
-            // 幻影闪烁倒计时：超时未离开 → 塌落（护盾可挡；跳走则计时解除）
-            if (_phantomBlock != null)
-            {
-                _phantomRemain -= dt;
-                float progress = 1f - Mathf.Clamp01(_phantomRemain / _phantomTotal);
-                _phantomBlock.SetPhantomBlink(progress);
-                if (_phantomRemain <= 0f)
-                {
-                    var pb = _phantomBlock;
-                    _phantomBlock = null;
-                    JumpAudio.Play(JumpConfig.SfxFall, 1f);
-                    CollapseAsync(pb, "护盾抵挡了幻影塌落！").Forget();
-                }
-            }
-        }
+        _fx.SlideTrail(_character.transform.position,
+            CurrentTileKind == TileKind.Ice && _effectTimer.Elapsed > _plan.Source.Effects.GetIce(CurrentEffectLevelId).StartDelay
+            && (State == JumpState.Ready || State == JumpState.Charging));
 
         UpdateCamera(dt);
     }
 
-    /// <summary>切后台：冻结全部陷阱倒计时与物品停留（OnTick 检查 _appPaused）</summary>
+    /// <summary>切后台：冻结特殊格计时和自动跳跃（OnTick 检查 _appPaused）</summary>
     private void OnApplicationPause(bool pause)
     {
         if (pause) CancelCharge();
@@ -1537,32 +859,6 @@ public class JumpGame : MonoBehaviour
     private void OnApplicationFocus(bool focused)
     {
         OnApplicationPause(!focused);
-    }
-
-    private async UniTaskVoid OpenWheelAsync()
-    {
-        if (_wheelOpen || _wheelLoading || _runTransitioning) return;
-        int version = _presentationVersion;
-        _wheelLoading = true;
-        _wheelOpen = true;
-        ApplyTimeFreeze();
-        try
-        {
-            var panel = await UIMgr.Instance.OpenPanel(JumpConfig.WheelPanelKey, UILayer.Popup,
-                new PanelLuckyWheel.RunContext(this, version));
-            if (!IsRunActive(version))
-                await UIMgr.Instance.ClosePanel(JumpConfig.WheelPanelKey, true);
-            else if (panel == null) NotifyWheelClosed();
-        }
-        finally { _wheelLoading = false; }
-    }
-
-    private async UniTask CloseWheelForTransitionAsync()
-    {
-        // Opening may still be loading its prefab. Drain it before a new run can open a wheel.
-        while (_wheelLoading) await UniTask.Yield();
-        await UIMgr.Instance.ClosePanel(JumpConfig.WheelPanelKey, true);
-        _wheelOpen = false;
     }
 
     private void UpdateCamera(float dt)
@@ -1634,11 +930,6 @@ public class JumpGame : MonoBehaviour
         if (_onWxHide != null) EventCenter.RemoveListener(EventKeys.WXHide, _onWxHide);
         if (_onWxShow != null) EventCenter.RemoveListener(EventKeys.WXShow, _onWxShow);
         if (_driver != null && _onTick != null) _driver.UpdateTick -= _onTick;
-        // 物品/陷阱模型预载引用随实例释放（引用计数归零由 ResMgr 统一回收）
-        foreach (var kv in _itemModels) ResMgr.Instance.ReleaseAsset(JumpConfig.GetItemResKey(kv.Key));
-        _itemModels.Clear();
-        foreach (var kv in _trapModels) ResMgr.Instance.ReleaseAsset(JumpConfig.GetTrapResKey(kv.Key));
-        _trapModels.Clear();
     }
 
     // ---------- GM 指令 ----------
@@ -1647,7 +938,7 @@ public class JumpGame : MonoBehaviour
     private static void RegisterGm()
     {
         DebugConsoleMgr.RegisterCommand("jump",
-            "jump start|hold|release|jump <p>|die|score <n>|level [<n>]|item <kind>|trap <kind>|best|home（跳一跳调试）",
+            "jump start|hold|release|jump <p>|die|score <n>|level [<n>]|best|home（跳一跳调试）",
             OnGmCommand);
     }
 
@@ -1697,34 +988,6 @@ public class JumpGame : MonoBehaviour
                         ? $"[JumpGM] 无存档（默认 {JumpConfig.GetLevelName(1)}）"
                         : $"[JumpGM] 当前第 {ls2.level} 关（{JumpConfig.GetLevelName(ls2.level)}）目标 {JumpConfig.GetLevelTargetBlocks(ls2.level)} 块");
                 }
-                break;
-            case "item": // 强制第 3 块刷指定物品（wheel|boost|coin|shard|shield|sprint|none），即时重开生效
-                if (parts.Length > 1 && Enum.TryParse(parts[1], true, out JumpItemKind forced))
-                {
-                    if (Instance == null)
-                    {
-                        Debug.LogWarning("[JumpGM] 请先 jump start 开局再强制物品");
-                        break;
-                    }
-                    Instance._gmItemKind = forced;
-                    Instance.Restart();
-                    Debug.Log($"[JumpGM] 第 3 块物品强制为 {forced}（{JumpConfig.GetItemName(forced)}）");
-                }
-                else Debug.LogWarning("[JumpGM] 用法: jump item <Wheel|ScoreBoost|CoinBag|Shard|Shield|Sprint|None>");
-                break;
-            case "trap": // 强制第 4 块刷指定陷阱（slippery|phantom|slowcharge|shake|burn|reverse|seal|none），即时重开生效
-                if (parts.Length > 1 && Enum.TryParse(parts[1], true, out JumpTrapKind forcedTrap))
-                {
-                    if (Instance == null)
-                    {
-                        Debug.LogWarning("[JumpGM] 请先 jump start 开局再强制陷阱");
-                        break;
-                    }
-                    Instance._gmTrapKind = forcedTrap;
-                    Instance.Restart();
-                    Debug.Log($"[JumpGM] 第 4 块陷阱强制为 {forcedTrap}（{JumpConfig.GetTrapName(forcedTrap)}）");
-                }
-                else Debug.LogWarning("[JumpGM] 用法: jump trap <Slippery|Phantom|SlowCharge|Shake|Burn|Reverse|Seal|None>");
                 break;
             case "best":
                 var save = DataMgr.Instance.Load<JumpSaveData>(JumpSaveData.SaveKey, true);
@@ -1788,7 +1051,7 @@ public class JumpGame : MonoBehaviour
                     if (Instance != null && Instance._plan != null)
                         sb.Append($" · 本局 {Instance._plan.DisplayName}{(Instance._plan.IsPlaytest ? "（试玩草稿）" : "")}");
                 }
-                else if (LevelRuntime.Status == LevelRuntime.PackStatus.SchemaUnsupported)
+                else if ((LevelRuntime.Status == LevelRuntime.PackStatus.SchemaUnsupported || LevelRuntime.Status == LevelRuntime.PackStatus.Corrupt))
                 {
                     sb.Append(" · 关卡包结构版本超前：开局已被阻断，请更新游戏");
                 }

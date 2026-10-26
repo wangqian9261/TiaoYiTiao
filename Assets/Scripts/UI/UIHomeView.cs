@@ -147,8 +147,12 @@ public class UIHomeView : UIPanel
 
     private void OnStartClicked()
     {
+        bool playtest = false;
+#if UNITY_EDITOR
+        playtest = LevelRuntime.HasPlaytestDraft;
+#endif
         // 开局体力闸门：不足 1 点拦截（轻震动反馈），扣除成功才进入跳一跳
-        if (!PlayerMgr.Instance.SpendEnergy(1))
+        if (!playtest && !PlayerMgr.Instance.SpendEnergy(1))
         {
             WeChatService.Vibrate(false);
             Debug.Log("[UIHomeView] 体力不足，无法开始游戏");

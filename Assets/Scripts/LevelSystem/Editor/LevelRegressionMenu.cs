@@ -64,7 +64,7 @@ public static class LevelRegressionMenu
                     var level = generator.Generate(def, DifficultyProfiles.Get(tier));
                     if (level == null) { genFail++; continue; }
                     totalLevels++;
-                    var report = validator.Validate(level, GlobalRewardConfig.Default, GlobalTrapConfig.Default);
+                    var report = validator.Validate(level);
                     if (!report.Pass)
                     {
                         validationFail++;
@@ -144,11 +144,11 @@ public static class LevelRegressionMenu
                 "schema 门：latest 指向超前版本时被识别为不可支持（开局阻断）");
             var indexOk = new PackIndexData
             {
-                latest = "1.0.0",
-                entries = new[] { new PackIndexEntryData { version = "1.0.0", schemaVersion = 1, levelCount = 3, sha256 = "x", buildTimeUtc = 1 } },
+                latest = "2.0.0",
+                entries = new[] { new PackIndexEntryData { version = "2.0.0", schemaVersion = 2, levelCount = 3, sha256 = "x", buildTimeUtc = 1 } },
             };
             var entryOk = LevelRuntime.SelectPackEntry(indexOk);
-            Check(entryOk != null && entryOk.version == "1.0.0" && entryOk.schemaVersion <= LevelRuntime.SupportedSchemaVersion,
+            Check(entryOk != null && entryOk.version == "2.0.0" && entryOk.schemaVersion == LevelRuntime.SupportedSchemaVersion,
                 "schema 门：受支持版本正常选中");
         }
 

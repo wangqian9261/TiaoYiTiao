@@ -48,7 +48,7 @@ public static class LevelRuntime
 
         // 索引 latest 即当前生效版本；结构版本超前 → 阻断（不静默回退旧包）
         PackIndexEntryData target = SelectPackEntry(index);
-        if (target == null || target.schemaVersion > SupportedSchemaVersion)
+        if (index.schemaVersion != SupportedSchemaVersion || target == null || target.schemaVersion != SupportedSchemaVersion)
         {
             _status = PackStatus.SchemaUnsupported;
             Debug.LogWarning($"[LevelRuntime] 关卡包版本不受支持（latest={index.latest}），需更新游戏");
@@ -78,10 +78,14 @@ public static class LevelRuntime
 
     private static LevelPack ParsePack(LevelPackData data, string version, string sha256)
     {
+        if (data == null || data.schemaVersion != SupportedSchemaVersion || data.levels == null || data.levelCount != data.levels.Length) return null;
+        if (data.packVersion != version || string.IsNullOrEmpty(sha256) ||
+            LevelPackIo.ComputeSha256(LevelPackIo.ToJson(data)) != sha256) return null;
+        var ids = new HashSet<int>();
         // 每关 layoutHash 重算复核（运行时不重新生成，只读烘焙路线 + 完整性校验）
         foreach (var d in data.levels)
         {
-            if (d == null) return null;
+            if (d == null || !ids.Add(d.levelId)) return null;
             if (!LevelPackIo.VerifyPackedLevel(d))
             {
                 Debug.LogError($"[LevelRuntime] 关卡 {d.levelId} layoutHash 不一致（文件损坏或被篡改）");
@@ -246,7 +250,7 @@ public static class LevelRuntime
 
     public static LevelRunPlan BuildPlan(GeneratedLevel level, int seq, bool isPlaytest)
     {
-        if (level == null || level.Tiles == null || level.Tiles.Count == 0) return null;
+        if (level == null || !new LevelValidator().Validate(level).Pass) return null;
         int n = level.Tiles.Count;
         var plan = new LevelRunPlan
         {
@@ -264,10 +268,8 @@ public static class LevelRuntime
             Positions = new Vector3[n],
             Sizes = new float[n],
             ArrivalAxis = new TileAxis[n],
-            Rewards = new RewardKind[n],
-            Traps = new TrapKind[n],
-            EffectSeeds = new uint[n],
-            ShakeOffsets = new float[n],
+            Kinds = new TileKind[n],
+            EffectLevelIds = new int[n],
         };
         for (int i = 0; i < n; i++)
         {
@@ -275,10 +277,8 @@ public static class LevelRuntime
             plan.Positions[i] = new Vector3(t.X, 0f, t.Z);
             plan.Sizes[i] = t.Size;
             plan.ArrivalAxis[i] = t.ArrivalAxis;
-            plan.Rewards[i] = t.Reward;
-            plan.Traps[i] = t.Trap;
-            plan.EffectSeeds[i] = t.EffectSeed;
-            plan.ShakeOffsets[i] = t.ShakeOffset;
+            plan.Kinds[i] = t.Kind;
+            plan.EffectLevelIds[i] = t.EffectLevelId;
         }
         return plan;
     }
@@ -370,7 +370,7 @@ public static class LevelRuntime
         string json = UnityEditor.SessionState.GetString(PlaytestJsonKey, "");
         if (string.IsNullOrEmpty(json)) return null;
         var packed = LevelPackIo.FromJson<PackedLevelData>(json);
-        var level = LevelPackIo.ToGeneratedLevel(packed);
+        var level = LevelPackIo.VerifyPackedLevel(packed) ? LevelPackIo.ToGeneratedLevel(packed) : null;
         if (level == null)
         {
             Debug.LogWarning("[LevelRuntime] 试玩草稿解析失败，回退正式流程");
@@ -394,13 +394,11 @@ public sealed class LevelRunPlan
     public int TileCount;
     public int EndIndex;            // 终点格索引
     public int TargetJumps;         // 通关所需跳数（格数-1；HUD 进度分母）
-    public Vector3[] Positions;     // 烘焙终点位（含震荡横移）
+    public Vector3[] Positions;     // 烘焙格心位置
     public float[] Sizes;
     public TileAxis[] ArrivalAxis;  // ArrivalAxis[i] = 跳入格 i 的行进轴
-    public RewardKind[] Rewards;
-    public TrapKind[] Traps;
-    public uint[] EffectSeeds;
-    public float[] ShakeOffsets;    // ShakeOffsets[i] = 格 i 的横向偏移（由格 i-1 震荡陷阱施加）
+    public TileKind[] Kinds;
+    public int[] EffectLevelIds;
     public GeneratedLevel Source;
 
     /// <summary>格 i 顶心（y=0 平面）</summary>

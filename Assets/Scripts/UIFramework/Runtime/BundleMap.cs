@@ -4,8 +4,8 @@ using System.Collections.Generic;
 /// key→AB包名/资产地址 的单一映射来源：ABBuilder（构建侧）与 BundleLoader（运行侧）共用，
 /// 两端不再各写一份约定（旧实现在两个文件里各硬编码一次，极易漂移）。
 /// 包粒度=模块对齐（微信小游戏按需下载的关键）：
-/// - 首屏 UI 各屏独立（texture_home/loading/levelui/wheel，开哪屏拉哪包）
-/// - 跳一跳 3D 资产按用途拆（jump_block/character/items/traps）
+/// - 首屏 UI 各屏独立（texture_home/loading/levelui，开哪屏拉哪包）
+/// - 跳一跳 3D 资产按用途拆（jump_block/character）
 /// - 音频按用途拆（bgm 首屏即播 / sfx 战斗懒载）
 /// 兜底规则：取 key 第一段小写；无分隔符 → "root"。
 /// </summary>
@@ -19,12 +19,9 @@ public static class BundleMap
     {
         ("Jump/Block/",      "jump_block"),
         ("Jump/Character/",  "jump_character"),
-        ("Jump/Items/",      "jump_items"),
-        ("Jump/Traps/",      "jump_traps"),
         ("Texture/Home/",    "texture_home"),
         ("Texture/Loading/", "texture_loading"),
         ("Texture/LevelUI/", "texture_levelui"),
-        ("Texture/Wheel/",   "texture_wheel"),
         ("Audio/bgm_",       "audio_bgm"),
         ("Audio/",           "audio_sfx"),
         ("Prefabs/",         "prefabs"),
@@ -70,7 +67,7 @@ public static class BundleMap
     /// <summary>战斗组：进入跳一跳对局需要的包（主页停留期间后台闲时预热）</summary>
     public static readonly string[] BattleGroup =
     {
-        "jump_block", "jump_character", "jump_items", "jump_traps",
-        "texture_levelui", "texture_wheel", "audio_sfx",
+        "jump_block", "jump_character",
+        "texture_levelui", "audio_sfx",
     };
 }

@@ -1,5 +1,5 @@
 ManifestFileVersion: 0
-CRC: 2804034203
+CRC: 2812948613
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
@@ -12,27 +12,26 @@ AssetBundleManifest:
       Name: config
       Dependencies: {}
     Info_3:
-      Name: jump_block
+      Name: fonts
       Dependencies: {}
     Info_4:
-      Name: jump_character
+      Name: jump_block
       Dependencies: {}
     Info_5:
-      Name: jump_items
+      Name: jump_character
       Dependencies: {}
     Info_6:
-      Name: jump_traps
-      Dependencies: {}
-    Info_7:
       Name: prefabs
       Dependencies:
-        Dependency_0: texture
-        Dependency_1: texture_home
-        Dependency_2: texture_levelui
-        Dependency_3: texture_loading
-        Dependency_4: texture_wheel
-        Dependency_5: fonts
-        Dependency_6: resultui
+        Dependency_0: fonts
+        Dependency_1: resultui
+        Dependency_2: texture
+        Dependency_3: texture_home
+        Dependency_4: texture_levelui
+        Dependency_5: texture_loading
+    Info_7:
+      Name: resultui
+      Dependencies: {}
     Info_8:
       Name: texture
       Dependencies: {}
@@ -44,13 +43,4 @@ AssetBundleManifest:
       Dependencies: {}
     Info_11:
       Name: texture_loading
-      Dependencies: {}
-    Info_12:
-      Name: texture_wheel
-      Dependencies: {}
-    Info_13:
-      Name: fonts
-      Dependencies: {}
-    Info_14:
-      Name: resultui
       Dependencies: {}

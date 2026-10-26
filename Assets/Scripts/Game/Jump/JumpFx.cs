@@ -9,6 +9,32 @@ public class JumpFx : MonoBehaviour
     private ParticleSystem _dust;
     private ParticleSystem _stars;
     private ParticleSystem _confetti;
+    private TrailRenderer _slide;
+    private Material _slideMaterial;
+
+    public void SlideTrail(Vector3 position, bool emitting)
+    {
+        if (_slide == null)
+        {
+            if (!emitting) return;
+            var go = new GameObject("IceSlideTrail");
+            go.transform.SetParent(transform, false);
+            go.transform.position = position + Vector3.up * .03f;
+            _slide = go.AddComponent<TrailRenderer>();
+            _slideMaterial = new Material(Shader.Find("Sprites/Default"));
+            _slide.sharedMaterial = _slideMaterial;
+            _slide.time = .5f;
+            _slide.minVertexDistance = .015f;
+            _slide.startWidth = .10f; _slide.endWidth = .01f;
+            _slide.startColor = Color.white; _slide.endColor = new Color(.6f,.9f,1f,0);
+        }
+        _slide.transform.position = position + Vector3.up * .03f;
+        if (emitting && !_slide.emitting) _slide.Clear();
+        _slide.emitting = emitting;
+    }
+
+    private void OnDestroy()
+    { if (_slideMaterial != null) Destroy(_slideMaterial); }
 
     public static JumpFx Create(Transform parent)
     {

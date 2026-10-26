@@ -1,81 +1,66 @@
-# LevelSystem —— 《跳一跳》程序化关卡编辑器与有限关卡模式
+# 特殊格关卡系统（schema 2）
 
-依据《跳一跳程序化关卡编辑器制作策划案》落地。有限关卡模式替代原无限模式（客户端运行时不重新生成正式关卡，只读取烘焙后的路线）。
+局内玩法仅由格子承载：起点、普通、冰滑、塌陷、冲刺、终点；单格单类型。旧独立道具、陷阱、转盘及局内拾取经济已移除；局外金币、碎片、皮肤和背包保持不变。
 
-## 一、模块边界
+## 配置与编辑
 
-```
-Assets/Scripts/LevelSystem/            运行时（数据 / 生成 / 效果 / 结算 / 包装载）
-  LevelTypes.cs          枚举（DifficultyTier/TileKind/RewardKind/TrapKind/ValidationSeverity）、
-                         领域类型（LevelDefinition/DifficultyProfile/GeneratedTile/GeneratedLevel/
-                         ValidationIssue/ValidationReport/LevelResult/LevelRecord）、
-                         全局奖励/陷阱配置、四大核心接口（ILevelGenerator/ILevelValidator/
-                         ILevelPackExporter/ITileEffectResolver）
-  Pcg32.cs               PCG32 确定性随机（FNV-1a 稳定哈希初始化：levelId+seed+generatorVersion）
-  LevelMath.cs           蓄力毫秒 ↔ 跳跃距离换算（与 JumpConfig 手感曲线严格一致；150–1250ms 口径）
-  DifficultyProfiles.cs  五档难度表（基准边长 1.60m / 基准边缘间距 0.65m）+ 模拟目标通关率
-  LevelJsonDto.cs        JsonUtility DTO（毫米整数；嵌套类必须 [Serializable]，见下"坑"）
-  LevelGenerator.cs      生成器：路线（尺寸/间距/X-Z 转向）→ 数量公式 → 权重抽取 →
-                         高约束优先放置（冲刺/幻影/反向/封印）→ 普通奖励陷阱 → 100 次尝试不静默删减
-  LevelValidator.cs      发布阻断条件全集（独立重推几何，非生成结果自说自话）
-  LevelPackIo.cs         领域 ↔ DTO、layoutHash（SHA-256/毫米数组）、包 SHA-256
-  LevelRuntime.cs        运行时门面：包装载（索引 latest + schema 门）/ 进度存档 / 计划构建 /
-                         试玩注入（SessionState）/ 结算（单关最高分 + 累计通关数）
-  LevelTileEffectResolver.cs  落格效果解析（策划案数值统一出口；Coins 为护盾转换载荷）
-  LevelEconomyConfig.cs  全局经济配置 ScriptableObject（奖励值/转盘奖池只在此改）
-Assets/Scripts/LevelSystem/Editor/     编辑器（EditorWindow / 预览 / 模拟 / 导出）
-  LevelEditorWindow.cs   Game/Level Editor 主窗口
-  LevelDraftStore.cs     草稿 CRUD（Assets/GameRes/Config/Levels/Drafts/level_{id:D3}.json）
-  LevelBakePipeline.cs   发布管线（存草稿→生成→阻断校验→1000模拟→烘焙→重导入校验→SHA-256→索引）
-  LevelSimulator.cs      玩家误差模拟（档位无关同一"人"：σ=62ms / fumble 0.4% / 迟疑 8%）
-  LevelScenePreview.cs   Scene 视图 3D 路线叠加（duringSceneGui，不落场景对象）
-  LevelPlaytestBootstrap.cs  退出 Play 清空试玩草稿
-  LevelRegressionMenu.cs LevelSystem/9 回归（菜单可跑；五档×{20,40,60}×种子 / 确定性 / 哈希 / schema 门）
-Assets/GameRes/Config/
-  LevelEconomyConfig.asset           全局经济配置（菜单 LevelSystem/1 确保创建）
-  Levels/Drafts/level_*.json         关卡草稿（策划可编辑定义）
-  Levels/Pack/pack_{ver}.json        发布包（全包原子替换；旧包保留供回滚）
-  Levels/Pack/pack_{ver}.sha256.txt  包文件 SHA-256
-  Levels/Pack/pack_index.json        包索引（latest 指向当前生效版本；回滚=指回旧版本）
-```
+打开 `Game/Level Editor`。选择关卡后编辑 Seed、格数、三种类型权重及独立等级权重；点击预览格或填写索引，再覆盖为普通或特殊格。覆盖列表可逐项移除。“恢复当前关卡难度默认值”仅重置权重，不删除手工覆盖。
 
-## 二、编辑器使用（菜单 Game/Level Editor）
+- `Assets/GameRes/Config/SpecialTileConfig.asset`：每种特殊格独立的正整数 ID 表，可添加第 6 级及以后等级。数组顺序不影响 ID 语义。
+- 冰滑 L1–5：延迟 0.80/0.65/0.50/0.35/0.20 秒，速度 0.15/0.20/0.25/0.30/0.35 米/秒。
+- 塌陷 L1–5：倒计时 2.5/2.2/1.9/1.6/1.3 秒。
+- 冲刺 L1–5：推进 1/2/3/4/5 格；各级默认蓄力 0.35 秒、单跳 0.20 秒。
+- 修改配置、Seed、权重、格数、覆盖后重新生成并校验。无效索引、未知 ID、特殊格相邻或冲刺通道冲突阻断试玩和发布，不静默替换。
+- 索引 0 为起点；1–5 与终点前 3 格必须普通。每关最多一处冲刺；后续指定格数都必须存在且普通。
+- 自动特殊格数为 `round((gridCount - 2) × density)`，五档密度 6/8/10/12/14%。自动布局生成后才应用覆盖；覆盖可以改变最终数量。
 
-- **左侧列表**：新建 / 复制（换 Seed）/ 停用 / 章节内 ↑↓ 排序 / 章节与难度筛选。
-- **中间预览**：2D 俯视路线（编号 / 方向 / 每跳蓄力毫秒 / 类型标签 / 格面触发范围 / 完美判定圈），只读；
-  勾选 "Scene 3D 叠加" 在 Scene 视图同步线框预览。
-- **右侧参数**：levelId / chapterId / 章节内顺序 / gridCount(20–60) / difficultyTier / seed / themeId / enabled。
-- **底部操作**：生成预览、更换 Seed、校验关卡、玩家误差模拟（1000 次）、试玩当前关、保存草稿、烘焙并导出 JSON（发布管线）、回滚到…。
-- **发布流程**：保存草稿 → 生成 → 阻断校验（Error 即阻断）→ 1000 次模拟（低于档位目标仅警告）→ 编辑器试玩 → 烘焙 JSON → 重导入校验（逐关 layoutHash + 文件 SHA-256）→ 更新索引。编辑器只产出发布产物，不连正式数据库。
-- **试玩**：经 SessionState 传递草稿（不生成/不保存任何临时正式资产），进 Play 后主页免体力直入；本 Play 会话内重开均注入该草稿，退出 Play 自动清空；试玩局不写进度与经济。
-- **回滚**：窗口"回滚到…"改索引 latest；新对局（新 Play 会话/新进程）即用回滚版本，进行中的对局持有原计划对象不受影响。
+| 难度 | 冰滑/塌陷/冲刺权重 | 冰滑、塌陷等级权重 | 冲刺默认等级 |
+| --- | --- | --- | --- |
+| 简单 | 100/0/0 | L1/L2 = 70/30 | 禁用 |
+| 普通 | 70/30/0 | L1/L2/L3 = 20/60/20 | 禁用 |
+| 困难 | 45/35/20 | L2/L3/L4 = 20/60/20 | L1/L2 = 50/50 |
+| 专家 | 35/40/25 | L3/L4/L5 = 20/50/30 | L2/L3 = 50/50 |
+| 大师 | 30/45/25 | L4/L5 = 35/65 | L3/L4 = 50/50 |
 
-## 三、运行时接入点
+## 运行时
 
-- `JumpGame` 计划模式：`_plan != null` 时世界按烘焙瓦片全量铺设（尺寸/位置/奖励/陷阱/轴/震荡偏移逐格读取）；
-  `_plan == null`（无包）回退旧无限模式。`Restart()` 每局重新解析计划（通关推进/包回滚即生效）。
-- 关卡名/进度：`JumpGame.CurrentLevelName`（HUD/主页铭牌/结果页统一走它）。
-- 金币：本关累计（`AddRunCoins`）+ 转盘"本关金币翻倍"回溯（`SetRunCoinDouble` 含触发前已得），结算统一入账
-  （金币砖 + 通关金币 = clearCoinBase × 档位倍率）。
-- 陷阱冻结：`TrapTimeFrozen`（转盘弹窗 / OnApplicationPause）冻结物品停留与全部陷阱倒计时。
-- 玩家数据：PlayerMgr 新增 `diamonds`、体验皮肤（GrantTrialSkin/HasActiveTrialSkin）。
-- GM 指令：`level [info]|play <levelId>|setseq <n>|next|reset|pack`；经济配置缺失回退代码默认值。
+- 冰滑沿下一跳轴持续移动，起跳距离从角色当前实际位置计算；可正常蓄力，滑出格面即坠落。高光流动纹理线与脚底轨迹提供非颜色识别。
+- 塌陷落地开始倒计时，裂纹加粗与脉冲反馈；起跳后不再推进该计时，超时仍站立则坍塌。
+- 冲刺锁定输入，自动蓄力并沿路线逐格小跳，落于格心。进入冲刺格的手动落地正常计分，全部自动落地不计分、不改变完美连跳、不触发格子效果。
+- 暂停和切后台冻结效果与动画；重开/退出使旧动画版本失效。
+- 无关卡包时只生成普通安全格与终点；schema 1 或损坏包不能降级为有限关卡。
 
-## 四、关键口径（策划案解读备忘）
+## 经济
 
-- 轴心距 = 0.65 × U(间距倍率区间) × 档位系数 + 半边长和，再钳制进 150–1250ms 可达区间（≈2.2–6.6m）。
-- 几何口径：理想落点链 `stand[j+1] = stand[j] + axis×D[j]`；瓦片实际位置 = 理想落点 + 横向震荡偏移。
-  引擎落点判定只看行进轴投影 → 震荡不影响本跳轴距，"震荡仍满足可达性"由构造保证（校验器仍独立复核）。
-- 震荡：烘焙终点位 = 理想落点 + 横移；运行时初铺在理想落点，踩中震荡砖滑到烘焙终点。
-- 反向出口校验：离开反向格的有效按压 = `ChargeMsReversedAtDist`（1-p 口径），越界为警告不阻断。
-- 模拟目标（≥75/60/45/30/20%）为发布底线：校准后五档中位 93/91/81/56/29% 全达标（大师档最贴近下限属预期）。
+`LevelEconomyConfig.asset` 配置基础金币（默认 100）及最高完美连跳加成档。基础金币乘难度倍率 1/1.2/1.5/2/2.5；加成按最高连跳 0–2:0%、3–4:10%、5–7:25%、8–11:50%、12+:100%，取整后相加。
 
-## 五、坑与边界
+仅通关正式局入账一次。失败不发币，试玩不写经济或进度。结算显示基础奖励、连跳加成、总金币和最高连跳。
 
-1. **JsonUtility 嵌套类必须 [Serializable]**：顶层平铺类可省略；含嵌套自定义类/数组时缺失会**静默截断字段**
-   （曾致 levels 数组整体消失，靠发布重导入校验兜底拦截）。已全 DTO 标注；回归含"JSON 往返数组完整"检查。
-2. 微信打包前必须重跑 **UIFramework/3**（新增 GameRes/Config 下经济配置与 Levels 包资产）。
-3. 未实现（依赖外部系统）：广告复活（护盾是唯一复活路径）、排行榜服务端接入、皮肤商店
-   （体验皮肤先记账，"已永久拥有转 100 金币"路径休眠）、正式货币服务端结算（本地即 PlayerMgr 入账）。
-4. LevelEconomyConfig 缺失时回退代码默认值（窗口 OnEnable/菜单 LevelSystem/1 会自动创建）。
-5. 包索引在运行时一次性装载缓存：热更包需重启进程/重进 Play 生效（进行中对局不受影响属设计语义）。
+## 包、进度与发布
+
+- generatorVersion = 2.0.0，schemaVersion = 2。新版客户端仅接受 schema 2。
+- 每关烘焙保存格子类型、等级 ID、权重、覆盖、配置版本及参数快照；layoutHash 包含这些内容，包索引 SHA-256 保护整包。
+- 配置资产修改不会追溯改变已有包；必须烘焙新版本。已发布版本不可覆盖，文件采用原子写入，索引最后更新。
+- 旧 schema 1 文件保留，但不能作为回滚目标。回滚仅接受哈希有效的 schema 2 包。
+- 原 12 关保留 levelId、章节顺序；进度的记录仍按 levelId 保存，当前序号字段保持原格式，无需清档。
+- 索引在运行时缓存；热更包在新进程/新 Play 会话生效，当前对局持有原计划。
+- 草稿目录 `Assets/GameRes/Config/Levels/Drafts`；发布目录 `Assets/GameRes/Config/Levels/Pack`。
+- 试玩草稿通过 SessionState 注入，退出 Play 才清空，免体力，不保存正式关卡文件。
+
+## 验证入口与模拟解释
+
+批处理可调用 `SpecialTileRegression.RunAll`；菜单 `LevelSystem/10. Special Tiles Regression`。真实 Play Mode 状态机测试入口 `SpecialTilePlayRegression.Start`（批处理不带 -quit，由测试结束退出）。
+
+回归覆盖五档 × 20/40/60 格 × 30 Seed（450 布局）、重复确定性、等级 6 与重排、非法覆盖/冲刺通道、387 个序列化字段逐项篡改、奖励所有边界。每档 9 个样本各跑 1000 次模拟，共 45000 局。真实运行检查五级延迟/速度/倒计时、及时离开/坠落、冲刺格数/连跳/锁输入以及暂停和重开。
+
+模拟器使用同一个合成玩家：按压误差 σ=56ms、失误率 0.4%、迟疑率 8%、反应 0.25 秒、危险格误差乘 1.5。σ 从 54/56/58/60/62ms 网格校准，56ms 是测试网格中满足五档均值下限的最大值；它是测试假设，不是真实玩家统计。
+
+| 难度 | 样本均值 | 参考下限 |
+| --- | --- | --- |
+| 简单 | 93.1% | 75% |
+| 普通 | 86.4% | 60% |
+| 困难 | 63.3% | 45% |
+| 专家 | 38.1% | 30% |
+| 大师 | 22.7% | 20% |
+
+12 关各 1000 局烘焙模拟中，第 11 关 25.7%（目标 30%）、第 12 关 6.6%（目标 20%）；其他关达到参考下限。长关风险随跳数累积，保留警告供实机试玩后调参，不自动修改已批准的参数。广告复活、远端排行榜与服务端经济不属于此次改动。

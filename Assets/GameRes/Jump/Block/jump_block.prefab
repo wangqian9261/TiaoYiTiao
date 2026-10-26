@@ -89,38 +89,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
   m_MaskInteraction: 0
---- !u!1 &3480271042588034512
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 7
-  m_Component:
-  - component: {fileID: 6316178259954238254}
-  m_Layer: 0
-  m_HasEditorInfo: 1
-  m_Name: ItemRoot
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6316178259954238254
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3480271042588034512}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.05, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4592905324526796721}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4034462695213448651
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,7 +187,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3829129277092381556}
-  - {fileID: 6316178259954238254}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5425765258216993822
@@ -237,11 +204,8 @@ MonoBehaviour:
   CloudRoot: {fileID: 3829129277092381556}
   CloudRenderers:
   - {fileID: 4607460408056477604}
-  ItemRoot: {fileID: 6316178259954238254}
   platformPrefab: {fileID: 2866373609251269622, guid: b028428de6ba548bcac45eecdbb82d0a, type: 3}
   Index: 0
   Size: 0
-  ItemKind: 0
-  TrapKind: 0
-  ItemConsumed: 0
-  TrapConsumed: 0
+  Kind: 0
+  EffectLevelId: 0

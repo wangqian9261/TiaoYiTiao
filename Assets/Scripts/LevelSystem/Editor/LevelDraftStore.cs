@@ -15,14 +15,18 @@ public static class LevelDraftStore
     public static string DraftPath(int levelId) => $"{DraftDir}/level_{levelId:D3}.json";
 
     /// <summary>全部草稿（按章节 + 章节内顺序排序）</summary>
-    public static List<LevelDefinition> LoadAll()
+    public static List<LevelDefinition> LoadAll() => LoadAll(out _);
+
+    public static List<LevelDefinition> LoadAll(out List<string> failures)
     {
+        failures = new List<string>();
         var result = new List<LevelDefinition>();
         if (!Directory.Exists(DraftDir)) return result;
         foreach (var file in Directory.GetFiles(DraftDir, "level_*.json"))
         {
             var def = LoadAtPath(file);
             if (def != null) result.Add(def);
+            else failures.Add($"草稿解析失败，发布阻断：{file}");
         }
         result.Sort((a, b) =>
         {
@@ -96,7 +100,7 @@ public static class LevelDraftStore
 /// <summary>
 /// 发布管线（策划案§2 发布流程）：
 /// 保存草稿 → 生成路线 → 阻断校验 → 1000 次模拟 →（编辑器试玩）→ 烘焙 JSON → 重新导入校验 → 生成 SHA-256。
-/// 全包原子替换；旧包文件保留（进行中的关卡 / 回放 / 快速回滚）；回滚 = 索引 latest 指回旧版本。
+/// 文件原子写入，索引最后更新；旧包保留，回滚仅接受校验通过的 schema 2 版本。
 /// </summary>
 public static class LevelBakePipeline
 {
@@ -124,15 +128,20 @@ public static class LevelBakePipeline
             progress?.Invoke(msg);
         }
 
-        if (string.IsNullOrEmpty(packVersion))
+        if (string.IsNullOrEmpty(packVersion) || !System.Text.RegularExpressions.Regex.IsMatch(packVersion, @"^\d+\.\d+\.\d+$"))
         {
-            result.Failures.Add("包版本号为空");
+            result.Failures.Add("包版本须为数字 x.y.z");
             return result;
         }
 
+        if (File.Exists($"{PackDir}/pack_{packVersion.Replace('.', '_')}.json"))
+        { result.Failures.Add("已发布版本不可覆盖，请提升包版本（旧包保留）"); return result; }
+
         // ---- 1. 草稿 ----
         Step("读取草稿");
-        var drafts = LevelDraftStore.LoadAll().Where(d => d.Enabled).ToList();
+        var drafts = LevelDraftStore.LoadAll(out var loadFailures).Where(d => d.Enabled).ToList();
+        if (loadFailures.Count > 0)
+        { result.Failures.AddRange(loadFailures); return result; }
         if (drafts.Count == 0)
         {
             result.Failures.Add("没有启用的关卡草稿");
@@ -147,7 +156,7 @@ public static class LevelBakePipeline
             }
 
         // ---- 2. 生成 + 3. 阻断校验 ----
-        var generator = new LevelGenerator();
+        var generator = new LevelGenerator(SpecialTileEditorConfig.LoadSettings());
         var validator = new LevelValidator();
         var levels = new List<GeneratedLevel>();
         for (int i = 0; i < drafts.Count; i++)
@@ -157,10 +166,10 @@ public static class LevelBakePipeline
             var level = generator.Generate(def, DifficultyProfiles.Get(def.Difficulty));
             if (level == null)
             {
-                result.Failures.Add($"关卡 {def.LevelId} 生成失败（100 次尝试均不可达/约束冲突）：请更换 Seed");
+                result.Failures.AddRange(generator.LastReport.Issues.Select(issue => $"关卡 {def.LevelId}: {issue.Message}"));
                 return result;
             }
-            var report = validator.Validate(level, GlobalRewardConfig.Default, GlobalTrapConfig.Default);
+            var report = validator.Validate(level);
             if (!report.Pass)
             {
                 foreach (var issue in report.Issues)
@@ -200,8 +209,8 @@ public static class LevelBakePipeline
         string packJson = LevelPackIo.ToJson(pack.Data);
         string packPath = $"{PackDir}/pack_{packVersion.Replace('.', '_')}.json";
         LevelDraftStore.EnsureDir();
-        File.WriteAllText(packPath, packJson);
-        File.WriteAllText($"{PackPathSha(packVersion)}", pack.Sha256);
+        AtomicWrite(packPath, packJson);
+        AtomicWrite(PackPathSha(packVersion), pack.Sha256);
         AssetDatabase.ImportAsset(packPath);
         AssetDatabase.ImportAsset(PackPathSha(packVersion));
         Step($"写包 {packPath}（{pack.Data.levelCount} 关）");
@@ -254,9 +263,9 @@ public static class LevelBakePipeline
         index.schemaVersion = LevelPackIo.SchemaVersion;
         index.latest = packVersion;
         index.entryCount = index.entries.Length;
-        File.WriteAllText(IndexPath(), LevelPackIo.ToJson(index));
+        AtomicWrite(IndexPath(), LevelPackIo.ToJson(index));
         AssetDatabase.ImportAsset(IndexPath());
-        Step($"索引 latest → {packVersion}（共 {index.entryCount} 个版本，旧包保留可回滚）");
+        Step($"索引 latest → {packVersion}（共 {index.entryCount} 个版本，仅 schema 2 可回滚）");
 
         result.Success = true;
         result.LevelCount = levels.Count;
@@ -266,20 +275,33 @@ public static class LevelBakePipeline
         return result;
     }
 
+    private static void AtomicWrite(string path, string content)
+    {
+        string temporary = path + "." + System.Guid.NewGuid().ToString("N") + ".tmp";
+        try {
+            File.WriteAllText(temporary, content);
+            if (File.Exists(path)) File.Replace(temporary, path, null);
+            else File.Move(temporary, path);
+        } finally { if (File.Exists(temporary)) File.Delete(temporary); }
+    }
+
     public static string PackPathSha(string version) => $"{PackDir}/pack_{version.Replace('.', '_')}.sha256.txt";
     public static string IndexPath() => $"{PackDir}/pack_index.json";
 
-    /// <summary>回滚：把索引 latest 指回已存在的旧版本（新对局即用回滚版本）</summary>
+    /// <summary>回滚：索引指回校验通过的 schema 2 包；新进程或新 Play 会话生效。</summary>
     public static bool RollbackTo(string version)
     {
         var index = LoadIndex();
         if (index == null) return false;
         bool found = false;
         foreach (var e in index.entries)
-            if (e.version == version) { found = true; break; }
+            if (e.version == version && e.schemaVersion == LevelPackIo.SchemaVersion) { found = true; break; }
         if (!found) return false;
+        var pack = LoadPackForPreview(version);
+        var entry = index.entries.First(e => e.version == version);
+        if (pack == null || LevelPackIo.ComputeSha256(LevelPackIo.ToJson(pack.Data)) != entry.sha256) return false;
         index.latest = version;
-        File.WriteAllText(IndexPath(), LevelPackIo.ToJson(index));
+        AtomicWrite(IndexPath(), LevelPackIo.ToJson(index));
         AssetDatabase.ImportAsset(IndexPath());
         Debug.Log($"[LevelBakePipeline] 已回滚：latest → {version}");
         return true;
@@ -300,7 +322,7 @@ public static class LevelBakePipeline
         var path = $"{PackDir}/pack_{version.Replace('.', '_')}.json";
         if (!File.Exists(path)) return null;
         var data = LevelPackIo.FromJson<LevelPackData>(File.ReadAllText(path));
-        if (data == null) return null;
+        if (data == null || data.schemaVersion != LevelPackIo.SchemaVersion || data.levels == null || data.levels.Any(d => !LevelPackIo.VerifyPackedLevel(d))) return null;
         var packed = new List<PackedLevelData>(data.levels);
         packed.Sort((a, b) =>
         {

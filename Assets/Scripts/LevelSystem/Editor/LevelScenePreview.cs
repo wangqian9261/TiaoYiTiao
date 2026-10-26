@@ -79,58 +79,10 @@ public static class LevelScenePreview
         Handles.color = restoreColor;
     }
 
-    public static Color KindColor(GeneratedTile t)
-    {
-        switch (t.Kind)
-        {
-            case TileKind.Start: return new Color(0.35f, 0.9f, 0.45f);
-            case TileKind.End: return new Color(1f, 0.84f, 0.25f);
-            case TileKind.Reward: return new Color(0.55f, 0.85f, 1f);
-            case TileKind.Trap: return new Color(1f, 0.42f, 0.42f);
-            default: return new Color(0.85f, 0.85f, 0.9f);
-        }
-    }
+    public static Color KindColor(GeneratedTile t) => SpecialTiles.ColorOf(t.Kind);
+    public static string TileTag(GeneratedTile t) => SpecialTiles.Name(t.Kind) +
+        (SpecialTiles.IsSpecial(t.Kind) ? " L" + t.EffectLevelId : "");
 
-    public static string TileTag(GeneratedTile t)
-    {
-        switch (t.Kind)
-        {
-            case TileKind.Reward: return "奖:" + RewardShort(t.Reward);
-            case TileKind.Trap: return "陷:" + TrapShort(t.Trap);
-            case TileKind.Start: return "起点";
-            case TileKind.End: return "终点";
-            default: return "";
-        }
-    }
-
-    private static string RewardShort(RewardKind kind)
-    {
-        switch (kind)
-        {
-            case RewardKind.LuckyWheel: return "转盘";
-            case RewardKind.ScoreBoost: return "增益";
-            case RewardKind.Coin: return "金币";
-            case RewardKind.SkinShard: return "碎片";
-            case RewardKind.Shield: return "护盾";
-            case RewardKind.Sprint: return "冲刺";
-            default: return "?";
-        }
-    }
-
-    private static string TrapShort(TrapKind kind)
-    {
-        switch (kind)
-        {
-            case TrapKind.Slippery: return "打滑";
-            case TrapKind.Phantom: return "幻影";
-            case TrapKind.SlowCharge: return "减速";
-            case TrapKind.Shake: return "震荡";
-            case TrapKind.Burn: return "燃烧";
-            case TrapKind.Reverse: return "反向";
-            case TrapKind.Seal: return "封印";
-            default: return "?";
-        }
-    }
 }
 
 /// <summary>Scene 预览标签样式缓存（每格编号错开色调，便于与连线对照）</summary>

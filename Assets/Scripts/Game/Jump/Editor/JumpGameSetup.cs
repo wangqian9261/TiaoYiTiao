@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 跳一跳资产一键生成（全幂等，可重复执行）：
-/// - GameRes/Jump/Block/jump_block.prefab（方块池模板：block_giftbox 礼盒浮台 + ItemRoot 物品容器）
+/// - GameRes/Jump/Block/jump_block.prefab（方块池模板：block_giftbox 礼盒浮台）
 /// - GameRes/Prefabs/Panel_JumpResult.prefab（Page 层结果页）
 /// - Panel_Home.prefab 增补"跳一跳 · 开始"按钮（已存在则只补序列化引用）
 /// 生成路径均在 GameRes 下：编辑器模拟加载与微信 AB 构建同构。
@@ -37,7 +37,7 @@ public static class JumpGameSetup
         // ---------- 方块池模板（旧结构：坐垫/云朵瓣簇/浮岛板/爱心彩蛋 → 自动升级为礼盒版） ----------
         string blockPath = $"{BlockDir}/jump_block.prefab";
         var existingBlock = AssetDatabase.LoadAssetAtPath<JumpBlock>(blockPath);
-        if (existingBlock != null && (existingBlock.CloudRoot == null || existingBlock.ItemRoot == null
+        if (existingBlock != null && (existingBlock.CloudRoot == null
             || existingBlock.platformPrefab == null)) // 旧模板（含 cushionPrefab 命名版）无 platformPrefab 引用 → 升级重建
         {
             AssetDatabase.DeleteAsset(blockPath);
@@ -55,7 +55,7 @@ public static class JumpGameSetup
             var root = new GameObject("jump_block");
             var block = root.AddComponent<JumpBlock>();
             block.platformPrefab = platformPrefab;
-            block.BuildPlatform(); // 礼盒归一（footprint 1×1、顶面 y=0）+ ItemRoot 空容器；运行时 Setup 按 Size 缩放
+            block.BuildPlatform(); // 礼盒归一（footprint 1×1、顶面 y=0）；运行时 Setup 按 Size 缩放
             PrefabUtility.SaveAsPrefabAsset(root, blockPath);
             Object.DestroyImmediate(root);
             Debug.Log($"[JumpGameSetup] 已生成 {blockPath}（block_giftbox 礼盒版）");

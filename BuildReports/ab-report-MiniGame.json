@@ -1,14 +1,14 @@
 {
     "target": "MiniGame",
-    "builtAtUtc": "2026-10-25T04:59:40.7448620Z",
-    "totalBytes": 21599882,
-    "bundleCount": 15,
-    "bootGroupBytes": 3467884,
-    "battleGroupBytes": 15567825,
+    "builtAtUtc": "2026-10-26T11:50:33.0828440Z",
+    "totalBytes": 18989011,
+    "bundleCount": 12,
+    "bootGroupBytes": 3463296,
+    "battleGroupBytes": 12961542,
     "bundles": [
         {
             "bundle": "jump_block",
-            "sizeBytes": 10718360,
+            "sizeBytes": 10698982,
             "assetCount": 13
         },
         {
@@ -27,23 +27,13 @@
             "assetCount": 5
         },
         {
-            "bundle": "jump_traps",
-            "sizeBytes": 1341856,
-            "assetCount": 28
-        },
-        {
             "bundle": "texture_home",
             "sizeBytes": 1308319,
             "assetCount": 10
         },
         {
-            "bundle": "jump_items",
-            "sizeBytes": 1189187,
-            "assetCount": 24
-        },
-        {
             "bundle": "audio_bgm",
-            "sizeBytes": 646004,
+            "sizeBytes": 646020,
             "assetCount": 2
         },
         {
@@ -53,7 +43,7 @@
         },
         {
             "bundle": "jump_character",
-            "sizeBytes": 505167,
+            "sizeBytes": 487466,
             "assetCount": 6
         },
         {
@@ -63,23 +53,18 @@
         },
         {
             "bundle": "audio_sfx",
-            "sizeBytes": 144943,
+            "sizeBytes": 144953,
             "assetCount": 6
         },
         {
             "bundle": "prefabs",
-            "sizeBytes": 107348,
-            "assetCount": 10
-        },
-        {
-            "bundle": "texture_wheel",
-            "sizeBytes": 38171,
-            "assetCount": 1
+            "sizeBytes": 94080,
+            "assetCount": 9
         },
         {
             "bundle": "config",
-            "sizeBytes": 11924,
-            "assetCount": 19
+            "sizeBytes": 20588,
+            "assetCount": 22
         }
     ]
 }

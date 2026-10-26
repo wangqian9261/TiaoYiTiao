@@ -19,7 +19,9 @@ public class LevelEditorWindow : EditorWindow
     private static readonly string[] TierNames =
         { "简单", "普通", "困难", "专家", "大师" };
 
-    private readonly LevelGenerator _generator = new LevelGenerator();
+    private LevelGenerator _generator;
+    private Vector2 _paramsScroll;
+    private int _selectedTile = 6;
     private readonly LevelValidator _validator = new LevelValidator();
     private readonly LevelSimulator _simulator = new LevelSimulator();
 
@@ -71,6 +73,15 @@ public class LevelEditorWindow : EditorWindow
         EnsureEconomyConfig();
     }
 
+    private string _configJson;
+    private void OnInspectorUpdate()
+    {
+        string json = JsonUtility.ToJson(SpecialTileEditorConfig.LoadSettings());
+        if (json == _configJson) return;
+        _configJson = json;
+        Regenerate();
+    }
+
     private void OnDisable()
     {
         LevelScenePreview.SetLevel(null);
@@ -92,17 +103,16 @@ public class LevelEditorWindow : EditorWindow
     private void Regenerate(bool reselectScene = true)
     {
         if (_selected == null) { _preview = null; _report = null; _sim = default; return; }
+        _generator = new LevelGenerator(SpecialTileEditorConfig.LoadSettings());
         _preview = _generator.Generate(_selected, DifficultyProfiles.Get(_selected.Difficulty));
         if (_preview == null)
         {
-            _report = new ValidationReport();
-            _report.Add(ValidationSeverity.Error, "gen.failed",
-                $"生成失败：100 次尝试均无法满足约束（请更换 Seed）——关卡不可发布");
+            _report = _generator.LastReport;
             _sim = default;
         }
         else
         {
-            _report = _validator.Validate(_preview, GlobalRewardConfig.Default, GlobalTrapConfig.Default);
+            _report = _validator.Validate(_preview);
             _sim = default; // 数值变动后旧模拟结果作废
         }
         if (reselectScene) LevelScenePreview.SetLevel(_preview);
@@ -307,7 +317,9 @@ public class LevelEditorWindow : EditorWindow
             var c = ToCanvas(t.X, t.Z);
             float s = t.Size * scale;
             var tileRect = new Rect(c.x - s * 0.5f, c.y - s * 0.5f, s, s);
-            Color color = LevelScenePreview.KindColor(t);
+            if (Event.current.type == EventType.MouseDown && tileRect.Contains(Event.current.mousePosition))
+            { _selectedTile = i; Event.current.Use(); Repaint(); }
+            Color color = i == _selectedTile ? Color.yellow : LevelScenePreview.KindColor(t);
             Color fill = color;
             fill.a = t.Kind == TileKind.Normal ? 0.22f : 0.55f;
             if (Event.current.type == EventType.Repaint)
@@ -353,7 +365,7 @@ public class LevelEditorWindow : EditorWindow
         // 图例
         var legend = new Rect(rect.x + 6f, rect.y + 4f, 330f, 40f);
         GUI.Label(new Rect(legend.x, legend.y, 330f, 16f),
-            "■ 起点  ■ 奖励  ■ 陷阱  ■ 终点（黄圈 = 完美判定）",
+            "起点 / 普通 / 冰滑 / 塌陷 / 冲刺 / 终点",
             new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = new Color(0.8f, 0.82f, 0.9f) } });
         GUI.Label(new Rect(legend.x, legend.y + 15f, 330f, 16f),
             $"gridCount {_preview.TileCount} · layoutHash {_preview.LayoutHash.Substring(0, Mathf.Min(12, _preview.LayoutHash.Length))}… · 预估通关 {_preview.PredictedClearSeconds:F0}s",
@@ -388,6 +400,7 @@ public class LevelEditorWindow : EditorWindow
                 return;
             }
             var def = _selected;
+            _paramsScroll = EditorGUILayout.BeginScrollView(_paramsScroll);
 
             EditorGUILayout.LabelField($"关卡 #{def.LevelId}{(_dirty ? "  *未保存" : "")}", EditorStyles.boldLabel);
             EditorGUILayout.Space(2f);
@@ -425,10 +438,11 @@ public class LevelEditorWindow : EditorWindow
                 def.Difficulty = (DifficultyTier)tier;
                 def.ThemeId = themeId;
                 def.Enabled = enabled;
-                Repaint();
+                Regenerate();
             }
 
             EditorGUILayout.Space(6f);
+            DrawSpecialControls(def);
             EditorGUILayout.LabelField("操作", EditorStyles.boldLabel);
             if (GUILayout.Button("生成预览（重新生成路线）", BigButton)) Regenerate();
             if (GUILayout.Button("更换 Seed 并重新生成", BigButton))
@@ -439,7 +453,8 @@ public class LevelEditorWindow : EditorWindow
             }
             GUI.enabled = _preview != null;
             if (GUILayout.Button("校验关卡（发布阻断条件）", BigButton))
-                _report = _validator.Validate(_preview, GlobalRewardConfig.Default, GlobalTrapConfig.Default);
+                _report = _validator.Validate(_preview);
+            GUI.enabled = _preview != null && _report != null && _report.Pass;
             if (GUILayout.Button("玩家误差模拟（1000 次）", BigButton))
             {
                 _sim = _simulator.Simulate(_preview, _simulator.DefaultRuns,
@@ -463,6 +478,88 @@ public class LevelEditorWindow : EditorWindow
             }
             if (GUILayout.Button("烘焙并导出 JSON（发布管线）", BigButton)) OnBake();
             if (GUILayout.Button("回滚到…（旧包保留）", GUILayout.Height(24f))) OnRollback();
+            EditorGUILayout.EndScrollView();
+        }
+    }
+
+
+    private void DrawSpecialControls(LevelDefinition def)
+    {
+        EditorGUILayout.LabelField("特殊格配置（ID 稳定，不按数组位置）", EditorStyles.boldLabel);
+        if (GUILayout.Button("编辑全局等级表")) Selection.activeObject = SpecialTileEditorConfig.LoadAsset();
+        if (GUILayout.Button("恢复当前关卡难度默认值"))
+        { def.SpecialRules = null; _dirty = true; Regenerate(); }
+        var rules = LevelPackIo.Clone(def.SpecialRules ?? DifficultyProfiles.DefaultRules(def.Difficulty)).ToList();
+        var config = SpecialTileEditorConfig.LoadSettings();
+        if (config == null)
+        { EditorGUILayout.HelpBox("全局等级表为空；请在配置资产中恢复 Settings 后继续。", MessageType.Error); return; }
+        if (rules.Any(r => r == null || r.Levels == null || r.Levels.Any(w => w == null)) ||
+            (def.Overrides?.Any(o => o == null) ?? false))
+        {
+            EditorGUILayout.HelpBox("权重或覆盖含空项，发布已阻断。可恢复默认权重或明确清除空项。", MessageType.Error);
+            if (GUILayout.Button("清除空权重/覆盖项"))
+            {
+                def.SpecialRules = rules.Where(r => r != null).ToArray();
+                foreach (var rule in def.SpecialRules) rule.Levels = (rule.Levels ?? new EffectLevelWeight[0]).Where(w => w != null).ToArray();
+                def.Overrides = (def.Overrides ?? new SpecialTileOverride[0]).Where(o => o != null).ToArray();
+                _dirty = true; Regenerate();
+            }
+            return;
+        }
+        EditorGUI.BeginChangeCheck();
+        foreach (var kind in new[] { TileKind.Ice, TileKind.Collapse, TileKind.Sprint })
+        {
+            var rule = rules.FirstOrDefault(r => r.Kind == kind);
+            if (rule == null) { rule = new SpecialTileRule { Kind = kind }; rules.Add(rule); }
+            rule.Weight = EditorGUILayout.IntField(SpecialTiles.Name(kind) + " 类型权重", rule.Weight);
+            var weights = (rule.Levels ?? new EffectLevelWeight[0]).ToList();
+            foreach (int id in config.LevelIds(kind).Concat(weights.Select(w => w.LevelId)).Distinct().OrderBy(i => i))
+            {
+                var entry = weights.FirstOrDefault(w => w.LevelId == id);
+                int weight = EditorGUILayout.IntField("    L" + id + " 权重", entry?.Weight ?? 0);
+                if (entry != null) entry.Weight = weight;
+                else if (weight != 0) weights.Add(new EffectLevelWeight(id, weight));
+            }
+            rule.Levels = weights.ToArray();
+        }
+        if (EditorGUI.EndChangeCheck())
+        { def.SpecialRules = rules.ToArray(); _dirty = true; Regenerate(); }
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("逐格覆盖（0 为起点；安全区不能设特殊格）");
+        _selectedTile = EditorGUILayout.IntField("选中格索引", _selectedTile);
+        var overrides = (def.Overrides ?? new SpecialTileOverride[0]).ToList();
+        var selected = overrides.FirstOrDefault(o => o.Index == _selectedTile);
+        var tile = _preview?.Tiles.FirstOrDefault(t => t.Index == _selectedTile);
+        var chosen = selected?.Kind ?? tile?.Kind ?? TileKind.Normal;
+        var kinds = new[] { TileKind.Normal, TileKind.Ice, TileKind.Collapse, TileKind.Sprint };
+        int choice = System.Array.IndexOf(kinds, chosen);
+        EditorGUI.BeginChangeCheck();
+        choice = EditorGUILayout.Popup("类型", Mathf.Max(0, choice), kinds.Select(SpecialTiles.Name).ToArray());
+        chosen = kinds[choice];
+        int grade = 0;
+        if (SpecialTiles.IsSpecial(chosen))
+        {
+            var ids = config.LevelIds(chosen);
+            int prev = selected?.EffectLevelId ?? tile?.EffectLevelId ?? 1;
+            int idx = EditorGUILayout.Popup("等级 ID", Mathf.Max(0, System.Array.IndexOf(ids, prev)),
+                ids.Select(id => "L" + id).ToArray());
+            if (ids.Length > 0) grade = ids[Mathf.Clamp(idx, 0, ids.Length - 1)];
+        }
+        bool edited = EditorGUI.EndChangeCheck();
+        if (GUILayout.Button("应用选中格覆盖") || edited)
+        {
+            overrides.RemoveAll(o => o.Index == _selectedTile);
+            overrides.Add(new SpecialTileOverride { Index = _selectedTile, Kind = chosen, EffectLevelId = grade });
+            def.Overrides = overrides.OrderBy(o => o.Index).ToArray(); _dirty = true; Regenerate();
+        }
+        foreach (var entry in overrides.ToArray())
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField($"格 {entry.Index}: {SpecialTiles.Name(entry.Kind)} L{entry.EffectLevelId}");
+                if (GUILayout.Button("移除", GUILayout.Width(48)))
+                { def.Overrides = overrides.Where(o => o != entry).ToArray(); _dirty = true; Regenerate(); break; }
+            }
         }
     }
 
@@ -555,6 +652,8 @@ public class LevelEditorWindow : EditorWindow
             Seed = NewRandomSeed(), // 复制换 Seed：同参数不同布局；同 Seed 同布局
             ThemeId = _selected.ThemeId,
             Enabled = _selected.Enabled,
+            SpecialRules = LevelPackIo.Clone(_selected.SpecialRules),
+            Overrides = LevelPackIo.Clone(_selected.Overrides),
         };
         LevelDraftStore.Save(def);
         _drafts = LevelDraftStore.LoadAll();
@@ -610,7 +709,7 @@ public class LevelEditorWindow : EditorWindow
             EditorUtility.DisplayDialog("试玩失败", "生成失败：请更换 Seed。", "知道了");
             return;
         }
-        _report = _validator.Validate(_preview, GlobalRewardConfig.Default, GlobalTrapConfig.Default);
+        _report = _validator.Validate(_preview);
         if (!_report.Pass)
         {
             EditorUtility.DisplayDialog("试玩阻断", "校验存在阻断项（见底部报告），请先修复再试玩。", "返回");
@@ -633,7 +732,7 @@ public class LevelEditorWindow : EditorWindow
     {
         if (!string.IsNullOrEmpty(_packVersionField)) return _packVersionField;
         var index = LevelBakePipeline.LoadIndex();
-        if (index == null || string.IsNullOrEmpty(index.latest)) return "1.0.0";
+        if (index == null || string.IsNullOrEmpty(index.latest) || index.schemaVersion != 2) return "2.0.0";
         var parts = index.latest.Split('.');
         if (parts.Length == 3 && int.TryParse(parts[2], out int minor)) return $"{parts[0]}.{parts[1]}.{minor + 1}";
         return index.latest + ".1";
@@ -667,7 +766,7 @@ public class LevelEditorWindow : EditorWindow
             return;
         }
         var menu = new GenericMenu();
-        foreach (var e in index.entries.OrderByDescending(e => e.buildTimeUtc))
+        foreach (var e in index.entries.Where(entry => entry.schemaVersion == 2).OrderByDescending(e => e.buildTimeUtc))
         {
             bool isCurrent = e.version == index.latest;
             menu.AddItem(new GUIContent($"v{e.version}（{e.levelCount} 关 · {e.buildTimeUtc}）{(isCurrent ? "· 当前" : "")}"),

@@ -20,6 +20,9 @@ public class LevelDefinitionData
     public long seed;                  // 固定 Seed
     public int themeId;
     public bool enabled = true;
+    public bool useDefaultSpecialRules = true;
+    public SpecialTileRule[] specialRules;
+    public SpecialTileOverride[] overrides;
 }
 
 /// <summary>烘焙瓦片（整数毫米）</summary>
@@ -32,10 +35,7 @@ public class PackedTileData
     public int x;              // 毫米
     public int z;              // 毫米
     public int size;           // 顶面边长（毫米）
-    public int rewardKind;     // RewardKind（无 = 0）
-    public int trapKind;       // TrapKind（无 = 0）
-    public long effectSeed;    // 特殊砖效果随机源
-    public int shakeOffset;    // 毫米，有符号（本格相对理想落点的横移，由上一格震荡陷阱施加）
+    public int effectLevelId;
 }
 
 /// <summary>烘焙关卡（发布产物；layoutHash 锁定布局）</summary>
@@ -54,6 +54,9 @@ public class PackedLevelData
     public string layoutHash = "";
     public int tileCount;
     public PackedTileData[] tiles;
+    public SpecialTileRule[] specialRules;
+    public SpecialTileOverride[] overrides;
+    public SpecialTileSettings effects;
 }
 
 /// <summary>关卡包（全包原子替换；旧包保留用于进行中的关卡、回放与快速回滚）</summary>
