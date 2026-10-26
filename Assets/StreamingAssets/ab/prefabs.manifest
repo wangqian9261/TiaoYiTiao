@@ -1,0 +1,126 @@
+ManifestFileVersion: 0
+CRC: 3366781878
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ba625e1a03d5a07728a4957cb7ce2189
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8bb5d06d93ddf7b6003941d316004567
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: ba625e1a03d5a07728a4957cb7ce2189
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7b47e8eded333485e8b08b9f97a4d15d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bf6e7ddc33e6b4a0687088c029058e79, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d674e378f18fc4de7a072b1ff747ece5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 35d5ece45c87a4bd1a95371a9fbaf1a5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8fb7e88c0b5354fb2b1108d751b0de29, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6190d4978b98f4a309b2541e16e99690, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5c4a417d0a1e14266b6aa419290eec1e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 122a6ea4db1c744949e989e76717eab1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e74b912450b9648cb99878a2691e44be, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c2da9a42a0d2540028ecabf70486fc25, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+- Class: 225
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: Assembly-CSharp
+  ClassName: PanelJumpResult/Presentation
+- AssemblyName: UnityEngine.CoreModule
+  ClassName: UnityEngine.Events.PersistentCallGroup
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.AnimationTriggers
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Button/ButtonClickedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.ColorBlock
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.FontData
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.MaskableGraphic/CullStateChangedEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Navigation
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Slider/SliderEvent
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.SpriteState
+- AssemblyName: UnityEngine.UI
+  ClassName: UnityEngine.UI.Toggle/ToggleEvent
+Assets:
+- Assets/GameRes/Prefabs/UIHomeView.prefab
+- Assets/GameRes/Prefabs/PanelLuckyWheel.prefab
+- Assets/GameRes/Prefabs/PanelBag.prefab
+- Assets/GameRes/Prefabs/Panel_JumpResult.prefab
+- Assets/GameRes/Prefabs/UILoadingView.prefab
+- Assets/GameRes/Prefabs/UIBattleView.prefab
+- Assets/GameRes/Prefabs/Panel_Reward.prefab
+- Assets/GameRes/Prefabs/UISettingsView.prefab
+- Assets/GameRes/Prefabs/PoolCube.prefab
+- Assets/GameRes/Prefabs/Panel_Home.prefab
+Dependencies:
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/fonts
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/resultui
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_home
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_levelui
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_loading
+- /Users/qian/UnityProject/Game3D001/Game3D001/Temp/FloralNineSlice_reviewfix_20261025/ab/texture_wheel

@@ -1,0 +1,363 @@
+{
+  "size": [
+    1024,
+    512
+  ],
+  "padding": 4,
+  "rotation": false,
+  "extrusion": 0,
+  "trim": false,
+  "frames": [
+    {
+      "name": "charge_disc_base",
+      "x": 2,
+      "y": 2,
+      "w": 350,
+      "h": 310,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "charge_target_arc_60",
+      "x": 356,
+      "y": 2,
+      "w": 300,
+      "h": 300,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "charge_target_ring",
+      "x": 660,
+      "y": 2,
+      "w": 300,
+      "h": 300,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "hud_header_base_frame",
+      "x": 2,
+      "y": 316,
+      "w": 249,
+      "h": 132,
+      "border": [
+        83,
+        36,
+        70,
+        64
+      ]
+    },
+    {
+      "name": "progress_fill_pink",
+      "x": 2,
+      "y": 452,
+      "w": 514,
+      "h": 32,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "trap_timer_base",
+      "x": 255,
+      "y": 316,
+      "w": 132,
+      "h": 124,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "progress_track_base_frame",
+      "x": 391,
+      "y": 306,
+      "w": 180,
+      "h": 78,
+      "border": [
+        42,
+        23,
+        42,
+        23
+      ]
+    },
+    {
+      "name": "trap_timer_ring",
+      "x": 520,
+      "y": 388,
+      "w": 108,
+      "h": 108,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "pause_button_base",
+      "x": 632,
+      "y": 306,
+      "w": 105,
+      "h": 96,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "combo_word",
+      "x": 632,
+      "y": 406,
+      "w": 128,
+      "h": 78,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "hud_header_base_bow",
+      "x": 741,
+      "y": 306,
+      "w": 196,
+      "h": 42,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "perfect_word",
+      "x": 764,
+      "y": 352,
+      "w": 110,
+      "h": 68,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "hud_header_base_flowers_left",
+      "x": 941,
+      "y": 306,
+      "w": 80,
+      "h": 79,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "charge_needle",
+      "x": 878,
+      "y": 352,
+      "w": 30,
+      "h": 145,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "cancel_button_base",
+      "x": 391,
+      "y": 388,
+      "w": 62,
+      "h": 60,
+      "border": [
+        27,
+        26,
+        27,
+        26
+      ]
+    },
+    {
+      "name": "hud_header_base_flowers_right",
+      "x": 575,
+      "y": 306,
+      "w": 51,
+      "h": 63,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "coin_counter_base",
+      "x": 964,
+      "y": 2,
+      "w": 58,
+      "h": 52,
+      "border": [
+        25,
+        22,
+        25,
+        22
+      ]
+    },
+    {
+      "name": "combo_bow",
+      "x": 764,
+      "y": 424,
+      "w": 64,
+      "h": 44,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "coin_icon",
+      "x": 964,
+      "y": 58,
+      "w": 52,
+      "h": 52,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "perfect_plus",
+      "x": 964,
+      "y": 114,
+      "w": 52,
+      "h": 52,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "charge_pivot_pearl",
+      "x": 964,
+      "y": 170,
+      "w": 43,
+      "h": 43,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "progress_marker_flower",
+      "x": 764,
+      "y": 472,
+      "w": 38,
+      "h": 38,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "progress_flower_left",
+      "x": 457,
+      "y": 388,
+      "w": 28,
+      "h": 48,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "pause_icon",
+      "x": 832,
+      "y": 424,
+      "w": 32,
+      "h": 40,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "trap_clock_icon",
+      "x": 806,
+      "y": 472,
+      "w": 32,
+      "h": 38,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "sparkle_gold",
+      "x": 842,
+      "y": 468,
+      "w": 30,
+      "h": 38,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "progress_flower_right",
+      "x": 912,
+      "y": 352,
+      "w": 24,
+      "h": 39,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

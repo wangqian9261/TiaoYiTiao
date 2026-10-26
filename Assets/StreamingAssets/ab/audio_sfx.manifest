@@ -1,0 +1,25 @@
+ManifestFileVersion: 0
+CRC: 1704851358
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 7fe9ae81d2fc91db8241502fec939776
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9a2ca7bdbd1871f7131daf57de908e0c
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 7fe9ae81d2fc91db8241502fec939776
+HashAppended: 0
+ClassTypes:
+- Class: 83
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/Audio/jump_fly.wav
+- Assets/GameRes/Audio/jump_fall.wav
+- Assets/GameRes/Audio/jump_land.wav
+- Assets/GameRes/Audio/jump_perfect.wav
+- Assets/GameRes/Audio/click.wav
+- Assets/GameRes/Audio/jump_bonus.wav
+Dependencies: []

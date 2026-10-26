@@ -1,0 +1,42 @@
+ManifestFileVersion: 0
+CRC: 19028960
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 8319bed90e197a891657bcff2f76ecfb
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: fe46f29c452498814bfed69d707afd01
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 8319bed90e197a891657bcff2f76ecfb
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 70214e2fd4b3e427fbcc563747d75d44, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/Config/Levels/Drafts/level_009.json
+- Assets/GameRes/Config/Levels/Pack/pack_1_0_1.json
+- Assets/GameRes/Config/demo.json
+- Assets/GameRes/Config/Levels/Drafts/level_002.json
+- Assets/GameRes/Config/Levels/Drafts/level_001.json
+- Assets/GameRes/Config/Levels/Drafts/level_011.json
+- Assets/GameRes/Config/Levels/Pack/pack_1_0_0.json
+- Assets/GameRes/Config/Levels/Drafts/level_010.json
+- Assets/GameRes/Config/LevelEconomyConfig.asset
+- Assets/GameRes/Config/Levels/Drafts/level_004.json
+- Assets/GameRes/Config/Levels/Pack/pack_1_0_1.sha256.txt
+- Assets/GameRes/Config/Levels/Drafts/level_006.json
+- Assets/GameRes/Config/Levels/Pack/pack_1_0_0.sha256.txt
+- Assets/GameRes/Config/Levels/Drafts/level_012.json
+- Assets/GameRes/Config/Levels/Drafts/level_005.json
+- Assets/GameRes/Config/Levels/Drafts/level_008.json
+- Assets/GameRes/Config/Levels/Pack/pack_index.json
+- Assets/GameRes/Config/Levels/Drafts/level_007.json
+- Assets/GameRes/Config/Levels/Drafts/level_003.json
+Dependencies: []

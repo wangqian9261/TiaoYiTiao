@@ -1,0 +1,142 @@
+{
+  "size": [
+    512,
+    512
+  ],
+  "padding": 4,
+  "rotation": false,
+  "extrusion": 0,
+  "trim": false,
+  "frames": [
+    {
+      "name": "button_primary_base_frame",
+      "x": 2,
+      "y": 2,
+      "w": 288,
+      "h": 185,
+      "border": [
+        96,
+        56,
+        96,
+        97
+      ]
+    },
+    {
+      "name": "button_primary_base_left",
+      "x": 294,
+      "y": 2,
+      "w": 159,
+      "h": 159,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_primary_base_right",
+      "x": 294,
+      "y": 165,
+      "w": 159,
+      "h": 158,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_primary_base_bow",
+      "x": 2,
+      "y": 327,
+      "w": 183,
+      "h": 81,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "currency_capsule_base_frame",
+      "x": 2,
+      "y": 412,
+      "w": 146,
+      "h": 78,
+      "border": [
+        25,
+        23,
+        25,
+        23
+      ]
+    },
+    {
+      "name": "button_primary_base_pearl",
+      "x": 152,
+      "y": 412,
+      "w": 105,
+      "h": 35,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "currency_left",
+      "x": 261,
+      "y": 191,
+      "w": 26,
+      "h": 44,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "currency_right",
+      "x": 261,
+      "y": 239,
+      "w": 26,
+      "h": 44,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "currency_pearl_bottom",
+      "x": 2,
+      "y": 494,
+      "w": 14,
+      "h": 5,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "currency_pearl_top",
+      "x": 2,
+      "y": 503,
+      "w": 14,
+      "h": 5,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

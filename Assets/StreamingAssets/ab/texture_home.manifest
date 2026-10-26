@@ -1,0 +1,31 @@
+ManifestFileVersion: 0
+CRC: 4022577190
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ae1bd74d0a1e7792dcfb3be083df3518
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: be00db6fe26cdc753a93ad4f664332ee
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: ae1bd74d0a1e7792dcfb3be083df3518
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/Texture/Home/icon_dress.png
+- Assets/GameRes/Texture/Home/icon_level_path.png
+- Assets/GameRes/Texture/Home/Sliced/home-1.png
+- Assets/GameRes/Texture/Home/icon_diamond.png
+- Assets/GameRes/Texture/Home/icon_coin.png
+- Assets/GameRes/Texture/Home/icon_settings.png
+- Assets/GameRes/Texture/Home/background_clean.png
+- Assets/GameRes/Texture/Home/icon_trophy.png
+- Assets/GameRes/Texture/Home/button_round_base.png
+- Assets/GameRes/Texture/Home/brand_title_huayang_tiaoqu.png
+Dependencies: []

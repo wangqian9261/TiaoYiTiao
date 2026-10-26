@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:yousandi.cn,2023:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70214e2fd4b3e427fbcc563747d75d44, type: 3}
+  m_Name: LevelEconomyConfig
+  m_EditorClassIdentifier: 
+  clearCoinBase: 100
+  coinBagFixed: 20
+  coinBagRandomMin: 5
+  coinBagRandomMax: 15
+  shardPerBrick: 1
+  shieldReTriggerCoins: 20
+  wheelPrizeKinds: 0000000001000000020000000300000004000000
+  wheelAmounts: 0a000000c8000000050000001800000000000000
+  wheelWeights: 0500000023000000140000000a0000001e000000
+  wheelLabels:
+  - "\u94BB\u77F3 \xD710"
+  - "\u91D1\u5E01 \xD7200"
+  - "\u901A\u7528\u788E\u7247 \xD75"
+  - "\u7A00\u6709\u76AE\u80A4\u4F53\u9A8C 24 \u5C0F\u65F6"
+  - "\u672C\u5173\u91D1\u5E01\u6536\u76CA\u7FFB\u500D"
+  trialSkinKindCount: 4
+  trialSkinHours: 24
+  trialSkinConvertCoins: 100

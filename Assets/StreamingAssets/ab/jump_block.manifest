@@ -1,0 +1,50 @@
+ManifestFileVersion: 0
+CRC: 1473805635
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 689cc76cc326a124f6c52950052adb1d
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 482b8e9eeb35f89148b6a11c7841ee48
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 689cc76cc326a124f6c52950052adb1d
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: eb26fff62bf914cf28d0af86ee8ab41c, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/TJGenerators/History/block_giftbox/e6b1ed1d0382ae15.fbx
+- Assets/TJGenerators/History/block_cushion/85551a54c95db72b.fbm/tripo_model_normal.JPEG
+- Assets/TJGenerators/History/block_cushion/85551a54c95db72b.fbx
+- Assets/TJGenerators/History/block_rose/9590755232e04ee6.fbx
+- Assets/GameRes/Jump/Block/block_giftbox.prefab
+- Assets/GameRes/Jump/Block/jump_block.prefab
+- Assets/GameRes/Jump/Block/block_cushion.prefab
+- Assets/TJGenerators/History/block_giftbox/e6b1ed1d0382ae15.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/block_giftbox/e6b1ed1d0382ae15.fbm/texture_normal.png
+- Assets/GameRes/Jump/Block/block_rose.prefab
+- Assets/TJGenerators/History/block_rose/9590755232e04ee6.fbm/texture_normal.png
+- Assets/TJGenerators/History/block_rose/9590755232e04ee6.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/block_cushion/85551a54c95db72b.fbm/tripo_model_basecolor.JPEG
+Dependencies: []

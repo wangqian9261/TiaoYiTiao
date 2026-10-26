@@ -1,0 +1,64 @@
+{
+  "size": [
+    1024,
+    1024
+  ],
+  "origin": "top-left",
+  "padding": 8,
+  "extrude": 0,
+  "rotation": false,
+  "background_excluded": true,
+  "frames": {
+    "loading_logo": {
+      "xywh": [
+        4,
+        4,
+        606,
+        306
+      ],
+      "rotated": false,
+      "trimmed": false
+    },
+    "loading_panel_base": {
+      "xywh": [
+        4,
+        318,
+        640,
+        222
+      ],
+      "rotated": false,
+      "trimmed": false
+    },
+    "loading_progress_track": {
+      "xywh": [
+        4,
+        548,
+        404,
+        46
+      ],
+      "rotated": false,
+      "trimmed": false
+    },
+    "loading_progress_fill": {
+      "xywh": [
+        416,
+        548,
+        390,
+        32
+      ],
+      "rotated": false,
+      "trimmed": false
+    },
+    "loading_progress_marker": {
+      "xywh": [
+        814,
+        548,
+        48,
+        36
+      ],
+      "rotated": false,
+      "trimmed": false
+    }
+  },
+  "note": "Optional art atlas; use Unity SpriteAtlas or standalone sprites, not both. No extrusion: do not use mipmaps; for compressed build regenerate with 2px extrusion."
+}

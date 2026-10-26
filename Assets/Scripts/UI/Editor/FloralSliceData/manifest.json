@@ -1,0 +1,1149 @@
+{
+  "version": 1,
+  "border_order": [
+    "left",
+    "bottom",
+    "right",
+    "top"
+  ],
+  "groups": {
+    "home": {
+      "assets": {
+        "button_primary_base_frame": {
+          "file": "assets/home/button_primary_base_frame.png",
+          "size": [
+            288,
+            185
+          ],
+          "border_lbrt": [
+            96,
+            56,
+            96,
+            97
+          ],
+          "min_size": [
+            193,
+            154
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "button_primary_base_left": {
+          "file": "assets/home/button_primary_base_left.png",
+          "size": [
+            159,
+            159
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            159,
+            159
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_primary_base_bow": {
+          "file": "assets/home/button_primary_base_bow.png",
+          "size": [
+            183,
+            81
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            183,
+            81
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_primary_base_right": {
+          "file": "assets/home/button_primary_base_right.png",
+          "size": [
+            159,
+            158
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            159,
+            158
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_primary_base_pearl": {
+          "file": "assets/home/button_primary_base_pearl.png",
+          "size": [
+            105,
+            35
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            105,
+            35
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "currency_capsule_base_frame": {
+          "file": "assets/home/currency_capsule_base_frame.png",
+          "size": [
+            146,
+            78
+          ],
+          "border_lbrt": [
+            25,
+            23,
+            25,
+            23
+          ],
+          "min_size": [
+            51,
+            47
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "currency_left": {
+          "file": "assets/home/currency_left.png",
+          "size": [
+            26,
+            44
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            26,
+            44
+          ],
+          "ppu": 100,
+          "method": "Source pixels; fixed pearl end cap; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "currency_right": {
+          "file": "assets/home/currency_right.png",
+          "size": [
+            26,
+            44
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            26,
+            44
+          ],
+          "ppu": 100,
+          "method": "Source pixels; fixed pearl end cap; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "currency_pearl_top": {
+          "file": "assets/home/currency_pearl_top.png",
+          "size": [
+            14,
+            5
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            14,
+            5
+          ],
+          "ppu": 100,
+          "method": "Source pixels; repeated pearl edge",
+          "render_type": "tiled"
+        },
+        "currency_pearl_bottom": {
+          "file": "assets/home/currency_pearl_bottom.png",
+          "size": [
+            14,
+            5
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            14,
+            5
+          ],
+          "ppu": 100,
+          "method": "Source pixels; repeated pearl edge",
+          "render_type": "tiled"
+        }
+      },
+      "atlases": [
+        "home-1"
+      ]
+    },
+    "loading": {
+      "assets": {
+        "loading_panel_base_frame": {
+          "file": "assets/loading/loading_panel_base_frame.png",
+          "size": [
+            376,
+            181
+          ],
+          "border_lbrt": [
+            140,
+            62,
+            140,
+            87
+          ],
+          "min_size": [
+            281,
+            150
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "loading_panel_base_left": {
+          "file": "assets/loading/loading_panel_base_left.png",
+          "size": [
+            140,
+            177
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            140,
+            177
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "loading_panel_base_right": {
+          "file": "assets/loading/loading_panel_base_right.png",
+          "size": [
+            140,
+            178
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            140,
+            178
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "loading_panel_base_bow": {
+          "file": "assets/loading/loading_panel_base_bow.png",
+          "size": [
+            190,
+            86
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            190,
+            86
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "loading_panel_base_top": {
+          "file": "assets/loading/loading_panel_base_top.png",
+          "size": [
+            85,
+            34
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            85,
+            34
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "tiled"
+        },
+        "loading_panel_base_bottom": {
+          "file": "assets/loading/loading_panel_base_bottom.png",
+          "size": [
+            360,
+            56
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            360,
+            56
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "tiled"
+        },
+        "loading_progress_track": {
+          "file": "assets/loading/loading_progress_track.png",
+          "size": [
+            60,
+            50
+          ],
+          "border_lbrt": [
+            26,
+            21,
+            26,
+            21
+          ],
+          "min_size": [
+            53,
+            43
+          ],
+          "ppu": 100,
+          "method": "Source pixels; mechanical nine-slice compaction",
+          "render_type": "sliced"
+        }
+      },
+      "atlases": [
+        "loading-1"
+      ]
+    },
+    "battle": {
+      "assets": {
+        "progress_fill_pink": {
+          "file": "assets/battle/progress_fill_pink.png",
+          "size": [
+            514,
+            32
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            514,
+            32
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "charge_disc_base": {
+          "file": "assets/battle/charge_disc_base.png",
+          "size": [
+            350,
+            310
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            350,
+            310
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "charge_target_ring": {
+          "file": "assets/battle/charge_target_ring.png",
+          "size": [
+            300,
+            300
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            300,
+            300
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "charge_target_arc_60": {
+          "file": "assets/battle/charge_target_arc_60.png",
+          "size": [
+            300,
+            300
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            300,
+            300
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "charge_needle": {
+          "file": "assets/battle/charge_needle.png",
+          "size": [
+            30,
+            145
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            30,
+            145
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "trap_timer_base": {
+          "file": "assets/battle/trap_timer_base.png",
+          "size": [
+            132,
+            124
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            132,
+            124
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "combo_word": {
+          "file": "assets/battle/combo_word.png",
+          "size": [
+            128,
+            78
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            128,
+            78
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "perfect_word": {
+          "file": "assets/battle/perfect_word.png",
+          "size": [
+            110,
+            68
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            110,
+            68
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "trap_timer_ring": {
+          "file": "assets/battle/trap_timer_ring.png",
+          "size": [
+            108,
+            108
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            108,
+            108
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "pause_button_base": {
+          "file": "assets/battle/pause_button_base.png",
+          "size": [
+            105,
+            96
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            105,
+            96
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "combo_bow": {
+          "file": "assets/battle/combo_bow.png",
+          "size": [
+            64,
+            44
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            64,
+            44
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "coin_icon": {
+          "file": "assets/battle/coin_icon.png",
+          "size": [
+            52,
+            52
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            52,
+            52
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "perfect_plus": {
+          "file": "assets/battle/perfect_plus.png",
+          "size": [
+            52,
+            52
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            52,
+            52
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "charge_pivot_pearl": {
+          "file": "assets/battle/charge_pivot_pearl.png",
+          "size": [
+            43,
+            43
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            43,
+            43
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "pause_icon": {
+          "file": "assets/battle/pause_icon.png",
+          "size": [
+            32,
+            40
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            32,
+            40
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "progress_marker_flower": {
+          "file": "assets/battle/progress_marker_flower.png",
+          "size": [
+            38,
+            38
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            38,
+            38
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "trap_clock_icon": {
+          "file": "assets/battle/trap_clock_icon.png",
+          "size": [
+            32,
+            38
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            32,
+            38
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "sparkle_gold": {
+          "file": "assets/battle/sparkle_gold.png",
+          "size": [
+            30,
+            38
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            30,
+            38
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless atlas crop",
+          "render_type": "simple"
+        },
+        "hud_header_base_frame": {
+          "file": "assets/battle/hud_header_base_frame.png",
+          "size": [
+            249,
+            132
+          ],
+          "border_lbrt": [
+            83,
+            36,
+            70,
+            64
+          ],
+          "min_size": [
+            154,
+            101
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "hud_header_base_flowers_left": {
+          "file": "assets/battle/hud_header_base_flowers_left.png",
+          "size": [
+            80,
+            79
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            80,
+            79
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "hud_header_base_flowers_right": {
+          "file": "assets/battle/hud_header_base_flowers_right.png",
+          "size": [
+            51,
+            63
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            51,
+            63
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "hud_header_base_bow": {
+          "file": "assets/battle/hud_header_base_bow.png",
+          "size": [
+            196,
+            42
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            196,
+            42
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "progress_track_base_frame": {
+          "file": "assets/battle/progress_track_base_frame.png",
+          "size": [
+            180,
+            78
+          ],
+          "border_lbrt": [
+            42,
+            23,
+            42,
+            23
+          ],
+          "min_size": [
+            85,
+            47
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "progress_flower_left": {
+          "file": "assets/battle/progress_flower_left.png",
+          "size": [
+            28,
+            48
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            28,
+            48
+          ],
+          "ppu": 100,
+          "method": "Source pixels; fixed end decoration; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "progress_flower_right": {
+          "file": "assets/battle/progress_flower_right.png",
+          "size": [
+            24,
+            39
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            24,
+            39
+          ],
+          "ppu": 100,
+          "method": "Source pixels; fixed end decoration; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "coin_counter_base": {
+          "file": "assets/battle/coin_counter_base.png",
+          "size": [
+            58,
+            52
+          ],
+          "border_lbrt": [
+            25,
+            22,
+            25,
+            22
+          ],
+          "min_size": [
+            51,
+            45
+          ],
+          "ppu": 100,
+          "method": "Source pixels; mechanical nine-slice compaction",
+          "render_type": "sliced"
+        },
+        "cancel_button_base": {
+          "file": "assets/battle/cancel_button_base.png",
+          "size": [
+            62,
+            60
+          ],
+          "border_lbrt": [
+            27,
+            26,
+            27,
+            26
+          ],
+          "min_size": [
+            55,
+            53
+          ],
+          "ppu": 100,
+          "method": "Source pixels; mechanical nine-slice compaction",
+          "render_type": "sliced"
+        }
+      },
+      "atlases": [
+        "battle-1"
+      ]
+    },
+    "result": {
+      "assets": {
+        "result_card_frame": {
+          "file": "assets/result/result_card_frame.png",
+          "size": [
+            282,
+            182
+          ],
+          "border_lbrt": [
+            93,
+            61,
+            93,
+            89
+          ],
+          "min_size": [
+            187,
+            151
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "result_card_flowers_left": {
+          "file": "assets/result/result_card_flowers_left.png",
+          "size": [
+            119,
+            112
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            119,
+            112
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "result_card_flowers_right": {
+          "file": "assets/result/result_card_flowers_right.png",
+          "size": [
+            119,
+            112
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            119,
+            112
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "result_card_pearl_top": {
+          "file": "assets/result/result_card_pearl_top.png",
+          "size": [
+            84,
+            35
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            84,
+            35
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "result_card_pearl_bottom": {
+          "file": "assets/result/result_card_pearl_bottom.png",
+          "size": [
+            74,
+            30
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            74,
+            30
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_primary_frame": {
+          "file": "assets/result/button_primary_frame.png",
+          "size": [
+            330,
+            180
+          ],
+          "border_lbrt": [
+            117,
+            54,
+            117,
+            94
+          ],
+          "min_size": [
+            235,
+            149
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "button_primary_left": {
+          "file": "assets/result/button_primary_left.png",
+          "size": [
+            212,
+            187
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            212,
+            187
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_primary_right": {
+          "file": "assets/result/button_primary_right.png",
+          "size": [
+            212,
+            187
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            212,
+            187
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_primary_bow": {
+          "file": "assets/result/button_primary_bow.png",
+          "size": [
+            154,
+            77
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            154,
+            77
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_cream_frame": {
+          "file": "assets/result/button_cream_frame.png",
+          "size": [
+            278,
+            132
+          ],
+          "border_lbrt": [
+            91,
+            50,
+            91,
+            50
+          ],
+          "min_size": [
+            183,
+            101
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "button_cream_left": {
+          "file": "assets/result/button_cream_left.png",
+          "size": [
+            63,
+            90
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            63,
+            90
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_cream_right": {
+          "file": "assets/result/button_cream_right.png",
+          "size": [
+            63,
+            90
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            63,
+            90
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_lavender_frame": {
+          "file": "assets/result/button_lavender_frame.png",
+          "size": [
+            278,
+            132
+          ],
+          "border_lbrt": [
+            91,
+            50,
+            91,
+            50
+          ],
+          "min_size": [
+            183,
+            101
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "sliced"
+        },
+        "button_lavender_left": {
+          "file": "assets/result/button_lavender_left.png",
+          "size": [
+            63,
+            90
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            63,
+            90
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "button_lavender_right": {
+          "file": "assets/result/button_lavender_right.png",
+          "size": [
+            63,
+            90
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            63,
+            90
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "result_header_base_fixed_outline": {
+          "file": "assets/result/result_header_base_fixed_outline.png",
+          "size": [
+            490,
+            180
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            490,
+            180
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source",
+          "render_type": "simple"
+        },
+        "victory_header_left": {
+          "file": "assets/result/victory_header_left.png",
+          "size": [
+            240,
+            286
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            240,
+            286
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "victory_header_right": {
+          "file": "assets/result/victory_header_right.png",
+          "size": [
+            240,
+            286
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            240,
+            286
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "victory_header_top": {
+          "file": "assets/result/victory_header_top.png",
+          "size": [
+            234,
+            116
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            234,
+            116
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "victory_header_bottom": {
+          "file": "assets/result/victory_header_bottom.png",
+          "size": [
+            234,
+            50
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            234,
+            50
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "defeat_header_left": {
+          "file": "assets/result/defeat_header_left.png",
+          "size": [
+            240,
+            293
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            240,
+            293
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "defeat_header_right": {
+          "file": "assets/result/defeat_header_right.png",
+          "size": [
+            240,
+            326
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            240,
+            326
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "defeat_header_top": {
+          "file": "assets/result/defeat_header_top.png",
+          "size": [
+            234,
+            191
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            234,
+            191
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "defeat_header_bottom": {
+          "file": "assets/result/defeat_header_bottom.png",
+          "size": [
+            234,
+            159
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            234,
+            159
+          ],
+          "ppu": 100,
+          "method": "AI rebuilt from approved source; transparent-margin trim compensated in layout",
+          "render_type": "simple"
+        },
+        "icon_coin": {
+          "file": "assets/result/icon_coin.png",
+          "size": [
+            88,
+            88
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            88,
+            88
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless crop",
+          "render_type": "simple"
+        },
+        "icon_video": {
+          "file": "assets/result/icon_video.png",
+          "size": [
+            86,
+            72
+          ],
+          "border_lbrt": null,
+          "min_size": [
+            86,
+            72
+          ],
+          "ppu": 100,
+          "method": "Source pixels; lossless crop",
+          "render_type": "simple"
+        }
+      },
+      "atlases": [
+        "result-1"
+      ]
+    }
+  }
+}

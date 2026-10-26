@@ -1,0 +1,57 @@
+ManifestFileVersion: 0
+CRC: 2836842395
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: be31ed97c2ad04ccbb98c0ac154643d7
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 32bad1d507e549fadd122a1a2832d76a
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: be31ed97c2ad04ccbb98c0ac154643d7
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/TJGenerators/History/item_coinbag/e86cb4487e083ea7.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/item_shard/f752826cf7665e7d.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/item_wheel/a054ae4bd3dd22f2.fbm/texture_normal.png
+- Assets/TJGenerators/History/item_flag/3299c2050f94c5ed.fbm/texture_normal.png
+- Assets/TJGenerators/History/item_coinbag/e86cb4487e083ea7.fbm/texture_normal.png
+- Assets/TJGenerators/History/item_star/bc7013a7772a6dd8.fbx
+- Assets/TJGenerators/History/item_shield/b1ff93231cd6275b.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/item_wheel/a054ae4bd3dd22f2.fbx
+- Assets/GameRes/Jump/Items/item_coinbag.prefab
+- Assets/GameRes/Jump/Items/item_wheel.prefab
+- Assets/TJGenerators/History/item_shard/f752826cf7665e7d.fbm/texture_normal.png
+- Assets/TJGenerators/History/item_shield/b1ff93231cd6275b.fbx
+- Assets/TJGenerators/History/item_star/bc7013a7772a6dd8.fbm/texture_normal.png
+- Assets/TJGenerators/History/item_wheel/a054ae4bd3dd22f2.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/item_coinbag/e86cb4487e083ea7.fbx
+- Assets/TJGenerators/History/item_star/bc7013a7772a6dd8.fbm/texture_diffuse.png
+- Assets/GameRes/Jump/Items/item_flag.prefab
+- Assets/GameRes/Jump/Items/item_star.prefab
+- Assets/TJGenerators/History/item_shield/b1ff93231cd6275b.fbm/texture_normal.png
+- Assets/TJGenerators/History/item_shard/f752826cf7665e7d.fbx
+- Assets/GameRes/Jump/Items/item_shield.prefab
+- Assets/GameRes/Jump/Items/item_shard.prefab
+- Assets/TJGenerators/History/item_flag/3299c2050f94c5ed.fbm/texture_diffuse.png
+- Assets/TJGenerators/History/item_flag/3299c2050f94c5ed.fbx
+Dependencies: []

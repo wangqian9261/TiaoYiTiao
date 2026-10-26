@@ -1,0 +1,127 @@
+{
+  "canvas": [
+    750,
+    1334
+  ],
+  "source_image": "/Users/qian/.codex/generated_images/01a13886-5246-7590-bf32-b4b3a5dd7629/exec-195ac902-f069-46c4-bb34-6fda3fc481aa.png",
+  "background": "/Users/qian/.codex/generated_images/01a13886-5246-7590-bf32-b4b3a5dd7629/exec-5c990c98-9b6e-42b0-a7d0-572043eecb8b.png",
+  "preview_font": "/Users/qian/Documents/ChatGPT/跳一跳美术/outputs/ui-slices/uiloading-characterless-v2/fonts/HuayangLoading-SC-Medium.otf",
+  "assets": [
+    {
+      "id": "loading_logo",
+      "source": "exec-a7805c96-f4ba-443e-b5d2-4f67e9d21427.png",
+      "xy": [
+        76,
+        105
+      ],
+      "size": [
+        606,
+        306
+      ],
+      "contains_text": true,
+      "role": "固定游戏名称及标语；保留为品牌美术字"
+    },
+    {
+      "id": "loading_panel_base",
+      "source": "exec-00edd406-90e6-4e13-84eb-558b87c02ec8.png",
+      "xy": [
+        52,
+        1033
+      ],
+      "size": [
+        640,
+        222
+      ],
+      "contains_text": false,
+      "role": "无字加载卡片；蝴蝶结/珍珠/侧花为静态装饰"
+    },
+    {
+      "id": "loading_progress_track",
+      "source": "exec-b6840260-0dfc-42ee-82ab-1f7f7419b73f.png",
+      "xy": [
+        128,
+        1155
+      ],
+      "size": [
+        404,
+        46
+      ],
+      "contains_text": false,
+      "role": "空进度轨道"
+    },
+    {
+      "id": "loading_progress_fill",
+      "source": "exec-fd6701c4-e3bd-4eb4-a08b-7e8f771b0cec.png",
+      "xy": [
+        135,
+        1162
+      ],
+      "size": [
+        390,
+        32
+      ],
+      "contains_text": false,
+      "role": "满幅填充条，Image.Filled水平从左裁切"
+    },
+    {
+      "id": "loading_progress_marker",
+      "source": "exec-8d6c04ae-9525-4dbc-a06a-3fdeb4a576ad.png",
+      "xy": [
+        0,
+        0
+      ],
+      "size": [
+        48,
+        36
+      ],
+      "contains_text": false,
+      "role": "花朵进度指示器，花心作为视觉锚点"
+    }
+  ],
+  "generation_root": "/Users/qian/.codex/generated_images/01a13886-5246-7590-bf32-b4b3a5dd7629",
+  "status": {
+    "rect": [
+      180,
+      1112,
+      390,
+      36
+    ],
+    "font_size": 27,
+    "color": "#651F0D",
+    "normal": "正在进入花漾世界…",
+    "failed": "加载失败，点击重试"
+  },
+  "percentage": {
+    "rect": [
+      557,
+      1161,
+      66,
+      36
+    ],
+    "font_size": 26,
+    "color": "#651F0D"
+  },
+  "marker": {
+    "pivot_px": [
+      18,
+      18
+    ],
+    "x_range": [
+      135,
+      525
+    ],
+    "center_y": 1178,
+    "hide_at_zero": true
+  },
+  "method": "built-in image_gen edits, then deterministic transparent cropping/export; not lossless original layer extraction",
+  "prompts": {
+    "bg": "Use case: precise-object-edit. Input image 1 is the EXACT edit target, a portrait game Loading screen. Produce ONLY its clean full-bleed background layer, same 941:1672 portrait composition. Remove the whole top title plaque including the large pink bow, lettering 花漾跳趣, attached plaque flowers and slogan ribbon; replace ONLY that occluded area naturally with matching sky/clouds and distant garden. Remove the bottom cream pearl/lace loading card including its bow, status text, progress bar and 65%; reconstruct the occluded area naturally with matching foreground flowers/clouds and garden. Keep all existing environment geometry and composition outside those two UI overlay areas unchanged: castle at top right, floral arch at center, entire winding square-platform path, giant pink floral square at lower left, yellow square, green square, cake, diamond squares, waterfalls, peripheral tulips, palette, perspective and illustration finish. No character. No text. No UI, no panels, no title, no progress bar, no numbers anywhere. Do not redesign or shift the scene. Deliver one high quality opaque portrait background.",
+    "logo": "Use case: background-extraction. Input image 1 is the edit target. Extract ONLY the COMPLETE TOP GAME LOGO ornament exactly as it appears: the large pink bow and pearl on top, cream scalloped plaque, surrounding tulips and daisies/leaves/gold scrollwork, dark cocoa Chinese wordmark 花漾跳趣, and lower curved pink slogan ribbon reading 花开一路，跳出惊喜 plus its pearl hangings. Preserve Chinese wording, existing letter shapes, relative sizes, colors, silhouette, original front view and all fine edges. This is faithful game UI slicing, not a logo redesign. Remove ALL sky, clouds, castle, floating platforms, flowers unrelated to the logo, loading panel and scene. Deliver a single tightly framed landscape PNG with TRUE TRANSPARENT ALPHA around the complete logo and in all open holes. Do not render a white, colored, black or checkerboard background. No extraneous text or labels, no mockup sheet. Leave small transparent padding without cutting leaf tips or ribbon ends.",
+    "panel": "Use case: precise-object-edit / background-extraction. Image 1 is the exact edit target. Isolate ONLY the bottom ornate Loading card from this screen as a reusable blank UI panel. Keep its original wide horizontal rounded cream silhouette, pearly scalloped lace/gold border, center top pink satin bow with pearl, small white daisies and green leaves at both sides, warm cream woven texture and original proportions. REMOVE the dark Chinese loading message, all percentage digits, the ENTIRE progress track/gold frame/fill, and its flower slider marker, reconstructing an uninterrupted clean cream woven panel surface in those places. The central area must be COMPLETELY BLANK, no letters, numbers, bars, icons or placeholders. Flowers at the panel outer edges and top bow are integral decorative frame ornaments and must remain. Remove all environment outside the panel, platforms, background flowers and scenery. One single tightly framed landscape panel, true transparent PNG alpha outside silhouette including lace holes. Not a white/black/checkerboard background. No other components, no redesign, preserve source card shape and decoration faithfully.",
+    "track": "Use case: precise-object-edit / background-extraction. Input image1 is the target. Isolate just the slim horizontal rounded capsule progress TRACK at the bottom of this game Loading screen. Faithfully retain its original double gold rim, thin white inner highlight, warm beige satin empty trough with subtle inner shadow. Remove every bit of the gold-pink filled content and remove its little flower marker; the ENTIRE trough must be uniformly EMPTY beige, matching the original unfilled right part. No loading card, no bow, no scene, no letters, no digits, no flower and no other decorations. Deliver one front-on very long thin horizontal capsule (width:height roughly 9.5:1), tightly centered with small transparent padding, transparent PNG alpha outside the gold capsule silhouette. Not a checkerboard or solid background. Preserve the source gold outline and small rounded endcaps, not a new bar design. Can use a wide landscape canvas with plenty of real transparent space above and below to hold the thin bar without changing its proportions.",
+    "fill": "Use case: precise-object-edit / background-extraction. Image1 is the exact game Loading UI edit target. Output ONLY the inner colored progress FILL from the bottom bar, reconstructed as a 100% full-width strip for runtime clipping. One long thin horizontal rounded capsule, ratio roughly 12:1; glossy saturated golden-yellow at left transitioning through warm orange to bright candy pink at right, soft glossy upper reflection, subtle tiny sparkle/diamond pattern seen in target. The fill should occupy the entire capsule (no empty part). NO outer gold track frame, NO beige trough, NO flower marker, NO card, NO text, NO percentage, NO scene. It is the actual inner fill component, with rounded caps both ends, thin height, not a thick button. True transparent PNG alpha outside shape with small safe margin; use a wide landscape canvas with transparent space above and below to preserve the slender ratio. Preserve target palette and illustration finish.",
+    "marker": "Use case: background-extraction. Image1 is exact edit target. Extract ONLY the tiny white five-petal daisy flower with yellow-gold center and small green leaf sprig sitting at the right tip of the colored loading progress bar near the bottom (next to the original 65% area). This is the sliding progress marker, not the larger scene flowers. Enlarge that one small ornament for a sharp single sprite. Keep source style: pearly white rounded petals, tiny warm gold center, small two/three green leaves pointing right, soft hand-painted glossy fantasy UI finish, front view. Remove absolutely everything else: no progress bar, card, text, numerals, sky, scenery or bow. One isolated flower marker only, tightly centered, genuine transparent PNG alpha all around with clean small margin and cutout holes. No black/white/checkerboard background, no cast shadow.",
+    "marker_refine": "Edit this single flower sprite. Remove ONLY the entire surrounding luminous haze / outer glow / yellow-green shadow. Keep the white petals, gold center, green leaves and their painted highlights exactly unchanged. Make the flower and leaves themselves fully opaque, with only narrow antialiased silhouette edges; make EVERY pixel outside the actual flower/leaf silhouette fully transparent (alpha zero). True PNG transparency, no background of any kind, no checkerboard, no new outer glow or shadow. This is a crisp game UI progress thumb icon that will be rendered only about 45 pixels wide, so external haze must be completely absent. Crop tightly with a small transparent margin."
+  },
+  "discarded_marker_refinement": "exec-89d529ac-925e-451f-af09-74876525db4f.png"
+}

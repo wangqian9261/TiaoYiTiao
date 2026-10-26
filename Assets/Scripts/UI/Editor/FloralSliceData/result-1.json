@@ -1,0 +1,350 @@
+{
+  "size": [
+    1024,
+    1024
+  ],
+  "padding": 4,
+  "rotation": false,
+  "extrusion": 0,
+  "trim": false,
+  "frames": [
+    {
+      "name": "result_header_base_fixed_outline",
+      "x": 2,
+      "y": 2,
+      "w": 490,
+      "h": 180,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "defeat_header_right",
+      "x": 496,
+      "y": 2,
+      "w": 240,
+      "h": 326,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "defeat_header_left",
+      "x": 740,
+      "y": 2,
+      "w": 240,
+      "h": 293,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "victory_header_left",
+      "x": 740,
+      "y": 299,
+      "w": 240,
+      "h": 286,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "victory_header_right",
+      "x": 2,
+      "y": 589,
+      "w": 240,
+      "h": 286,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_primary_frame",
+      "x": 2,
+      "y": 332,
+      "w": 330,
+      "h": 180,
+      "border": [
+        117,
+        54,
+        117,
+        94
+      ]
+    },
+    {
+      "name": "result_card_frame",
+      "x": 336,
+      "y": 332,
+      "w": 282,
+      "h": 182,
+      "border": [
+        93,
+        61,
+        93,
+        89
+      ]
+    },
+    {
+      "name": "defeat_header_top",
+      "x": 246,
+      "y": 589,
+      "w": 234,
+      "h": 191,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_primary_left",
+      "x": 484,
+      "y": 518,
+      "w": 212,
+      "h": 187,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_primary_right",
+      "x": 246,
+      "y": 784,
+      "w": 212,
+      "h": 187,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "defeat_header_bottom",
+      "x": 462,
+      "y": 784,
+      "w": 234,
+      "h": 159,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_cream_frame",
+      "x": 2,
+      "y": 186,
+      "w": 278,
+      "h": 132,
+      "border": [
+        91,
+        50,
+        91,
+        50
+      ]
+    },
+    {
+      "name": "button_lavender_frame",
+      "x": 700,
+      "y": 589,
+      "w": 278,
+      "h": 132,
+      "border": [
+        91,
+        50,
+        91,
+        50
+      ]
+    },
+    {
+      "name": "victory_header_top",
+      "x": 2,
+      "y": 879,
+      "w": 234,
+      "h": 116,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "result_card_flowers_left",
+      "x": 284,
+      "y": 186,
+      "w": 119,
+      "h": 112,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "result_card_flowers_right",
+      "x": 700,
+      "y": 725,
+      "w": 119,
+      "h": 112,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_primary_bow",
+      "x": 823,
+      "y": 725,
+      "w": 154,
+      "h": 77,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "victory_header_bottom",
+      "x": 2,
+      "y": 518,
+      "w": 234,
+      "h": 50,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "icon_coin",
+      "x": 622,
+      "y": 332,
+      "w": 88,
+      "h": 88,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "icon_video",
+      "x": 462,
+      "y": 947,
+      "w": 86,
+      "h": 72,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_cream_left",
+      "x": 622,
+      "y": 424,
+      "w": 63,
+      "h": 90,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_cream_right",
+      "x": 407,
+      "y": 186,
+      "w": 63,
+      "h": 90,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_lavender_left",
+      "x": 700,
+      "y": 841,
+      "w": 63,
+      "h": 90,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_lavender_right",
+      "x": 767,
+      "y": 841,
+      "w": 63,
+      "h": 90,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "result_card_pearl_top",
+      "x": 407,
+      "y": 280,
+      "w": 84,
+      "h": 35,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "result_card_pearl_bottom",
+      "x": 823,
+      "y": 806,
+      "w": 74,
+      "h": 30,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

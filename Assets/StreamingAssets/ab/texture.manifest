@@ -1,0 +1,23 @@
+ManifestFileVersion: 0
+CRC: 1157409418
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 717adce3730470dd6cc39e26738619c4
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: be00db6fe26cdc753a93ad4f664332ee
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 717adce3730470dd6cc39e26738619c4
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/Texture/Settings/settings-sliced-1.png
+- Assets/GameRes/Texture/Reward_Gold.png
+Dependencies: []

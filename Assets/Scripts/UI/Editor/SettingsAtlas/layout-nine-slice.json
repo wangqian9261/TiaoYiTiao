@@ -1,0 +1,734 @@
+{
+  "canvas": [
+    750,
+    1334
+  ],
+  "origin": "top-left",
+  "nodes": [
+    {
+      "name": "Header",
+      "asset": "header_frame",
+      "xywh": [
+        125,
+        116,
+        460,
+        138
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "sliced",
+      "raycast": false
+    },
+    {
+      "name": "HeaderBow",
+      "asset": "header_bow",
+      "xywh": [
+        -87,
+        -34,
+        174,
+        74
+      ],
+      "parent": "Header",
+      "anchor": [
+        0.5,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "HeaderLeft",
+      "asset": "header_flower_left",
+      "xywh": [
+        -30,
+        -1,
+        104,
+        130
+      ],
+      "parent": "Header",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "HeaderRight",
+      "asset": "header_flower_right",
+      "xywh": [
+        -74,
+        -1,
+        104,
+        130
+      ],
+      "parent": "Header",
+      "anchor": [
+        1,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "HeaderPearl",
+      "asset": "pearl_ornament",
+      "xywh": [
+        -36,
+        -20,
+        72,
+        34
+      ],
+      "parent": "Header",
+      "anchor": [
+        0.5,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanel",
+      "asset": "panel_frame",
+      "xywh": [
+        35,
+        349,
+        680,
+        468
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "sliced",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelFlowerTL",
+      "asset": "flower_tl",
+      "xywh": [
+        -19,
+        -31,
+        110,
+        120
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelFlowerTR",
+      "asset": "flower_tr",
+      "xywh": [
+        -91,
+        -31,
+        110,
+        120
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        1,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelFlowerBL",
+      "asset": "flower_bl",
+      "xywh": [
+        -19,
+        -93,
+        105,
+        108
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        0,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelFlowerBR",
+      "asset": "flower_br",
+      "xywh": [
+        -86,
+        -93,
+        105,
+        108
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        1,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelHeading",
+      "asset": "panel_heading",
+      "xywh": [
+        -148,
+        -19,
+        296,
+        98
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        0.5,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelTopPearl",
+      "asset": "pearl_ornament",
+      "xywh": [
+        -36,
+        -30,
+        72,
+        34
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        0.5,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundPanelBottomPearl",
+      "asset": "pearl_ornament",
+      "xywh": [
+        -36,
+        -20,
+        72,
+        34
+      ],
+      "parent": "SoundPanel",
+      "anchor": [
+        0.5,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanel",
+      "asset": "panel_frame",
+      "xywh": [
+        35,
+        883,
+        680,
+        280
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "sliced",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelFlowerTL",
+      "asset": "flower_tl",
+      "xywh": [
+        -19,
+        -31,
+        110,
+        120
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelFlowerTR",
+      "asset": "flower_tr",
+      "xywh": [
+        -91,
+        -31,
+        110,
+        120
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        1,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelFlowerBL",
+      "asset": "flower_bl",
+      "xywh": [
+        -19,
+        -93,
+        105,
+        108
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        0,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelFlowerBR",
+      "asset": "flower_br",
+      "xywh": [
+        -86,
+        -93,
+        105,
+        108
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        1,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelHeading",
+      "asset": "panel_heading",
+      "xywh": [
+        -148,
+        -19,
+        296,
+        98
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        0.5,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelTopPearl",
+      "asset": "pearl_ornament",
+      "xywh": [
+        -36,
+        -30,
+        72,
+        34
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        0.5,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "FeedbackPanelBottomPearl",
+      "asset": "pearl_ornament",
+      "xywh": [
+        -36,
+        -20,
+        72,
+        34
+      ],
+      "parent": "FeedbackPanel",
+      "anchor": [
+        0.5,
+        1
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "Close",
+      "asset": "close",
+      "xywh": [
+        629,
+        126,
+        104,
+        112
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "MusicIcon",
+      "asset": "icon_music",
+      "xywh": [
+        84,
+        493,
+        55,
+        62
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "SoundIcon",
+      "asset": "icon_sound",
+      "xywh": [
+        81,
+        668,
+        64,
+        56
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "VibrationIcon",
+      "asset": "icon_vibration",
+      "xywh": [
+        84,
+        1024,
+        76,
+        64
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "DividerLeft",
+      "asset": "divider_left",
+      "xywh": [
+        78,
+        591,
+        33,
+        39
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "DividerLineL",
+      "asset": "divider_line",
+      "xywh": [
+        104,
+        591,
+        240,
+        39
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "sliced",
+      "raycast": false
+    },
+    {
+      "name": "DividerLineR",
+      "asset": "divider_line",
+      "xywh": [
+        406,
+        591,
+        237,
+        39
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "sliced",
+      "raycast": false
+    },
+    {
+      "name": "DividerRight",
+      "asset": "divider_right",
+      "xywh": [
+        637,
+        591,
+        33,
+        39
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    },
+    {
+      "name": "DividerFlower",
+      "asset": "divider_flower",
+      "xywh": [
+        337,
+        591,
+        73,
+        39
+      ],
+      "parent": "design",
+      "anchor": [
+        0,
+        0
+      ],
+      "pivot": [
+        0,
+        1
+      ],
+      "render_type": "simple",
+      "raycast": false
+    }
+  ],
+  "labels": [
+    {
+      "text": "设置",
+      "xywh": [
+        304,
+        145,
+        140,
+        72
+      ],
+      "fontSize": 60
+    },
+    {
+      "text": "声音",
+      "xywh": [
+        313,
+        360,
+        124,
+        62
+      ],
+      "fontSize": 48
+    },
+    {
+      "text": "背景音乐",
+      "xywh": [
+        156,
+        498,
+        168,
+        60
+      ],
+      "fontSize": 36
+    },
+    {
+      "text": "游戏音效",
+      "xywh": [
+        156,
+        671,
+        168,
+        60
+      ],
+      "fontSize": 36
+    },
+    {
+      "text": "操作与反馈",
+      "xywh": [
+        266,
+        890,
+        219,
+        63
+      ],
+      "fontSize": 33
+    },
+    {
+      "text": "振动反馈",
+      "xywh": [
+        182,
+        1027,
+        179,
+        60
+      ],
+      "fontSize": 36
+    }
+  ],
+  "background_separate": true,
+  "controls": {
+    "sliders": [
+      {
+        "name": "MusicSlider",
+        "xywh": [
+          345,
+          485,
+          320,
+          84
+        ]
+      },
+      {
+        "name": "SoundSlider",
+        "xywh": [
+          345,
+          658,
+          320,
+          84
+        ]
+      }
+    ],
+    "toggle": {
+      "name": "VibrationToggle",
+      "xywh": [
+        503,
+        1016,
+        158,
+        80
+      ]
+    }
+  },
+  "notes": "Ornaments anchor to frame corners/edges at fixed size; all text remains runtime."
+}

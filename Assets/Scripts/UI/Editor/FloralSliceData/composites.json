@@ -1,0 +1,823 @@
+{
+  "home/button_primary_base": {
+    "base": "button_primary_base_frame",
+    "size": [
+      520,
+      188
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "button_primary_base_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          79.5,
+          -4.5
+        ],
+        "size": [
+          159.0,
+          159.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_primary_base_bow",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          -2.5,
+          -46.5
+        ],
+        "size": [
+          183.0,
+          81.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_primary_base_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -79.5,
+          -5.0
+        ],
+        "size": [
+          159.0,
+          158.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_primary_base_pearl",
+        "anchor": [
+          0.5,
+          0
+        ],
+        "offset": [
+          -0.5,
+          26.5
+        ],
+        "size": [
+          105.0,
+          35.0
+        ],
+        "layer": 4,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  },
+  "home/currency_capsule_base": {
+    "base": "currency_capsule_base_frame",
+    "size": [
+      178,
+      52
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "currency_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          13.0,
+          0.0
+        ],
+        "size": [
+          26.0,
+          44.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "currency_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -13.0,
+          0.0
+        ],
+        "size": [
+          26.0,
+          44.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "currency_pearl_top",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0,
+          -7.5
+        ],
+        "size": [
+          126,
+          5
+        ],
+        "layer": 2,
+        "tile": true,
+        "stretch_x": true,
+        "inset": 26
+      },
+      {
+        "sprite": "currency_pearl_bottom",
+        "anchor": [
+          0.5,
+          0
+        ],
+        "offset": [
+          0,
+          6.5
+        ],
+        "size": [
+          126,
+          5
+        ],
+        "layer": 2,
+        "tile": true,
+        "stretch_x": true,
+        "inset": 26
+      }
+    ],
+    "height_lock": 52,
+    "scale_to_height": true
+  },
+  "loading/loading_panel_base": {
+    "base": "loading_panel_base_frame",
+    "size": [
+      640,
+      222
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "loading_panel_base_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          70.0,
+          -3.5
+        ],
+        "size": [
+          140.0,
+          177.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "loading_panel_base_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -70.0,
+          -3.0
+        ],
+        "size": [
+          140.0,
+          178.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "loading_panel_base_top",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0.0,
+          -48.0
+        ],
+        "size": [
+          360,
+          34
+        ],
+        "layer": 4,
+        "tile": true,
+        "stretch_x": true,
+        "inset": 140
+      },
+      {
+        "sprite": "loading_panel_base_bottom",
+        "anchor": [
+          0.5,
+          0
+        ],
+        "offset": [
+          0.0,
+          28.0
+        ],
+        "size": [
+          360,
+          56
+        ],
+        "layer": 5,
+        "tile": true,
+        "stretch_x": true,
+        "inset": 140
+      },
+      {
+        "sprite": "loading_panel_base_bow",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0.0,
+          -44.0
+        ],
+        "size": [
+          190.0,
+          86.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      }
+    ],
+    "height_lock": 222
+  },
+  "loading/loading_progress_track": {
+    "base": "loading_progress_track",
+    "size": [
+      404,
+      46
+    ],
+    "decorations": []
+  },
+  "battle/hud_header_base": {
+    "base": "hud_header_base_frame",
+    "size": [
+      610,
+      112
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "hud_header_base_flowers_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          47.0,
+          -14.5
+        ],
+        "size": [
+          80.0,
+          79.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "hud_header_base_flowers_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -25.5,
+          -23.5
+        ],
+        "size": [
+          51.0,
+          63.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "hud_header_base_bow",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          -7.0,
+          -28.0
+        ],
+        "size": [
+          196.0,
+          42.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  },
+  "battle/progress_track_base": {
+    "base": "progress_track_base_frame",
+    "size": [
+      656,
+      52
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "progress_flower_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          34.0,
+          0.0
+        ],
+        "size": [
+          28.0,
+          48.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "progress_flower_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -32.0,
+          0.5
+        ],
+        "size": [
+          24.0,
+          39.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  },
+  "battle/coin_counter_base": {
+    "base": "coin_counter_base",
+    "size": [
+      205,
+      48
+    ],
+    "decorations": []
+  },
+  "battle/cancel_button_base": {
+    "base": "cancel_button_base",
+    "size": [
+      123,
+      58
+    ],
+    "decorations": []
+  },
+  "result/result_card": {
+    "base": "result_card_frame",
+    "size": [
+      684,
+      202
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "result_card_flowers_left",
+        "anchor": [
+          0,
+          1
+        ],
+        "offset": [
+          66.5,
+          -56.0
+        ],
+        "size": [
+          119.0,
+          112.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "result_card_flowers_right",
+        "anchor": [
+          1,
+          1
+        ],
+        "offset": [
+          -66.5,
+          -56.0
+        ],
+        "size": [
+          119.0,
+          112.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "result_card_pearl_top",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0.0,
+          -27.5
+        ],
+        "size": [
+          84.0,
+          35.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "result_card_pearl_bottom",
+        "anchor": [
+          0.5,
+          0
+        ],
+        "offset": [
+          0.0,
+          15.0
+        ],
+        "size": [
+          74.0,
+          30.0
+        ],
+        "layer": 4,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  },
+  "result/button_primary": {
+    "base": "button_primary_frame",
+    "size": [
+      614,
+      204
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "button_primary_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          106.0,
+          -2.5
+        ],
+        "size": [
+          212.0,
+          187.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_primary_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -106.0,
+          -2.5
+        ],
+        "size": [
+          212.0,
+          187.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_primary_bow",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0.0,
+          -39.5
+        ],
+        "size": [
+          154.0,
+          77.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  },
+  "result/button_cream": {
+    "base": "button_cream_frame",
+    "size": [
+      484,
+      124
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "button_cream_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          39.5,
+          0.0
+        ],
+        "size": [
+          63.0,
+          90.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_cream_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -39.5,
+          0.0
+        ],
+        "size": [
+          63.0,
+          90.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      }
+    ],
+    "scale_to_height": true
+  },
+  "result/button_lavender": {
+    "base": "button_lavender_frame",
+    "size": [
+      484,
+      124
+    ],
+    "fixed_outline": false,
+    "decorations": [
+      {
+        "sprite": "button_lavender_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          39.5,
+          0.0
+        ],
+        "size": [
+          63.0,
+          90.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "button_lavender_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -39.5,
+          0.0
+        ],
+        "size": [
+          63.0,
+          90.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      }
+    ],
+    "scale_to_height": true
+  },
+  "result/victory_header": {
+    "base": "result_header_base_fixed_outline",
+    "size": [
+      714,
+      286
+    ],
+    "fixed_outline": true,
+    "base_rect": [
+      112,
+      76,
+      490,
+      180
+    ],
+    "decorations": [
+      {
+        "sprite": "victory_header_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          120.0,
+          0.0
+        ],
+        "size": [
+          240.0,
+          286.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "victory_header_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -120.0,
+          0.0
+        ],
+        "size": [
+          240.0,
+          286.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "victory_header_top",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0.0,
+          -58.0
+        ],
+        "size": [
+          234.0,
+          116.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "victory_header_bottom",
+        "anchor": [
+          0.5,
+          0
+        ],
+        "offset": [
+          0.0,
+          53.0
+        ],
+        "size": [
+          234.0,
+          50.0
+        ],
+        "layer": 4,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  },
+  "result/defeat_header": {
+    "base": "result_header_base_fixed_outline",
+    "size": [
+      714,
+      383
+    ],
+    "fixed_outline": true,
+    "base_rect": [
+      112,
+      170,
+      490,
+      180
+    ],
+    "decorations": [
+      {
+        "sprite": "defeat_header_left",
+        "anchor": [
+          0,
+          0.5
+        ],
+        "offset": [
+          120.0,
+          -45.0
+        ],
+        "size": [
+          240.0,
+          293.0
+        ],
+        "layer": 1,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "defeat_header_right",
+        "anchor": [
+          1,
+          0.5
+        ],
+        "offset": [
+          -120.0,
+          -28.5
+        ],
+        "size": [
+          240.0,
+          326.0
+        ],
+        "layer": 2,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "defeat_header_top",
+        "anchor": [
+          0.5,
+          1
+        ],
+        "offset": [
+          0.0,
+          -95.5
+        ],
+        "size": [
+          234.0,
+          191.0
+        ],
+        "layer": 3,
+        "tile": false,
+        "stretch_x": false
+      },
+      {
+        "sprite": "defeat_header_bottom",
+        "anchor": [
+          0.5,
+          0
+        ],
+        "offset": [
+          0.0,
+          112.5
+        ],
+        "size": [
+          234.0,
+          159.0
+        ],
+        "layer": 4,
+        "tile": false,
+        "stretch_x": false
+      }
+    ]
+  }
+}

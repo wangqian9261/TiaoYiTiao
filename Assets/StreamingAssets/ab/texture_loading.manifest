@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 315092847
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 77df98da51aa9e2c4fcead994ee8f5c8
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: be00db6fe26cdc753a93ad4f664332ee
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 77df98da51aa9e2c4fcead994ee8f5c8
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/Texture/Loading/loading_progress_fill.png
+- Assets/GameRes/Texture/Loading/loading_logo_frame.png
+- Assets/GameRes/Texture/Loading/Sliced/loading-1.png
+- Assets/GameRes/Texture/Loading/loading_background_750x1334.png
+- Assets/GameRes/Texture/Loading/loading_progress_marker.png
+Dependencies: []

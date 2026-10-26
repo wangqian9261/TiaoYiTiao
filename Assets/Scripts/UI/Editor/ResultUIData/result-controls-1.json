@@ -1,0 +1,103 @@
+{
+  "size": [
+    1024,
+    1024
+  ],
+  "padding": 4,
+  "extrusion": 0,
+  "rotation": false,
+  "trim": false,
+  "frames": [
+    {
+      "name": "defeat_header",
+      "x": 2,
+      "y": 2,
+      "w": 714,
+      "h": 383,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "victory_header",
+      "x": 2,
+      "y": 389,
+      "w": 714,
+      "h": 286,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "result_card",
+      "x": 2,
+      "y": 679,
+      "w": 684,
+      "h": 214,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_cream",
+      "x": 2,
+      "y": 897,
+      "w": 484,
+      "h": 124,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "button_lavender",
+      "x": 490,
+      "y": 897,
+      "w": 484,
+      "h": 124,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "icon_coin",
+      "x": 690,
+      "y": 679,
+      "w": 88,
+      "h": 88,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "icon_video",
+      "x": 690,
+      "y": 771,
+      "w": 86,
+      "h": 72,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

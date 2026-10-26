@@ -1,0 +1,56 @@
+ManifestFileVersion: 0
+CRC: 2804034203
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: audio_bgm
+      Dependencies: {}
+    Info_1:
+      Name: audio_sfx
+      Dependencies: {}
+    Info_2:
+      Name: config
+      Dependencies: {}
+    Info_3:
+      Name: jump_block
+      Dependencies: {}
+    Info_4:
+      Name: jump_character
+      Dependencies: {}
+    Info_5:
+      Name: jump_items
+      Dependencies: {}
+    Info_6:
+      Name: jump_traps
+      Dependencies: {}
+    Info_7:
+      Name: prefabs
+      Dependencies:
+        Dependency_0: texture
+        Dependency_1: texture_home
+        Dependency_2: texture_levelui
+        Dependency_3: texture_loading
+        Dependency_4: texture_wheel
+        Dependency_5: fonts
+        Dependency_6: resultui
+    Info_8:
+      Name: texture
+      Dependencies: {}
+    Info_9:
+      Name: texture_home
+      Dependencies: {}
+    Info_10:
+      Name: texture_levelui
+      Dependencies: {}
+    Info_11:
+      Name: texture_loading
+      Dependencies: {}
+    Info_12:
+      Name: texture_wheel
+      Dependencies: {}
+    Info_13:
+      Name: fonts
+      Dependencies: {}
+    Info_14:
+      Name: resultui
+      Dependencies: {}

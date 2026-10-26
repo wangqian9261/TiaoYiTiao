@@ -1,0 +1,85 @@
+{
+    "target": "MiniGame",
+    "builtAtUtc": "2026-10-25T04:59:40.7448620Z",
+    "totalBytes": 21599882,
+    "bundleCount": 15,
+    "bootGroupBytes": 3467884,
+    "battleGroupBytes": 15567825,
+    "bundles": [
+        {
+            "bundle": "jump_block",
+            "sizeBytes": 10718360,
+            "assetCount": 13
+        },
+        {
+            "bundle": "texture_levelui",
+            "sizeBytes": 1630141,
+            "assetCount": 2
+        },
+        {
+            "bundle": "resultui",
+            "sizeBytes": 1534263,
+            "assetCount": 1
+        },
+        {
+            "bundle": "texture_loading",
+            "sizeBytes": 1394289,
+            "assetCount": 5
+        },
+        {
+            "bundle": "jump_traps",
+            "sizeBytes": 1341856,
+            "assetCount": 28
+        },
+        {
+            "bundle": "texture_home",
+            "sizeBytes": 1308319,
+            "assetCount": 10
+        },
+        {
+            "bundle": "jump_items",
+            "sizeBytes": 1189187,
+            "assetCount": 24
+        },
+        {
+            "bundle": "audio_bgm",
+            "sizeBytes": 646004,
+            "assetCount": 2
+        },
+        {
+            "bundle": "texture",
+            "sizeBytes": 608385,
+            "assetCount": 2
+        },
+        {
+            "bundle": "jump_character",
+            "sizeBytes": 505167,
+            "assetCount": 6
+        },
+        {
+            "bundle": "fonts",
+            "sizeBytes": 421525,
+            "assetCount": 7
+        },
+        {
+            "bundle": "audio_sfx",
+            "sizeBytes": 144943,
+            "assetCount": 6
+        },
+        {
+            "bundle": "prefabs",
+            "sizeBytes": 107348,
+            "assetCount": 10
+        },
+        {
+            "bundle": "texture_wheel",
+            "sizeBytes": 38171,
+            "assetCount": 1
+        },
+        {
+            "bundle": "config",
+            "sizeBytes": 11924,
+            "assetCount": 19
+        }
+    ]
+}

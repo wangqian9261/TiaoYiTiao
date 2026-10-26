@@ -1,0 +1,27 @@
+{
+  "deviceOrientation":"$DEVICE_ORIENTATION",
+  "menuButtonStyle":"$MENU_BUTTON_STYLE",
+  "enableWebGL2":$ENABLEWEBGL2,
+  "enableIOSHighPerformanceMode": true,
+  "enableIOSHighPerformanceModePlus": $ENABLEIOSHIGHERPERFORMANCEPLUS,
+  "enableAndroidPipelineMode": $ENABLE_ANDROID_PIPELINE_MODE,
+  "subpackages": [
+    $STREAM_ASSET_DIR
+    {
+      "name" : "wasmcode",
+      "root" : "wasmcode/"
+    },
+    {
+      "name" : "data-package",
+      "root" : "data-package/"
+    }
+  ],
+  "plugins": {
+    "UnityPlugin": {
+      "version": "4.42.2",
+      "provider": "tt674511f8f84ea91612"
+    }
+  },
+  "graphicsDeviceType": $GRAPHICS_DEVICE_TYPE
+  
+}

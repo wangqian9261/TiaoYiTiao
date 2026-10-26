@@ -1,0 +1,22 @@
+ManifestFileVersion: 0
+CRC: 1695871032
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 845a0bfbcc59d07dc09dd8edaa140fd4
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: be00db6fe26cdc753a93ad4f664332ee
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 845a0bfbcc59d07dc09dd8edaa140fd4
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/ResultUI/Sliced/result-1.png
+Dependencies: []

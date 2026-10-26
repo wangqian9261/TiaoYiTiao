@@ -1,0 +1,103 @@
+{
+  "size": [
+    512,
+    512
+  ],
+  "padding": 4,
+  "rotation": false,
+  "extrusion": 0,
+  "trim": false,
+  "frames": [
+    {
+      "name": "loading_panel_base_frame",
+      "x": 2,
+      "y": 2,
+      "w": 376,
+      "h": 181,
+      "border": [
+        140,
+        62,
+        140,
+        87
+      ]
+    },
+    {
+      "name": "loading_panel_base_right",
+      "x": 2,
+      "y": 187,
+      "w": 140,
+      "h": 178,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "loading_panel_base_left",
+      "x": 146,
+      "y": 187,
+      "w": 140,
+      "h": 177,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "loading_panel_base_bottom",
+      "x": 146,
+      "y": 368,
+      "w": 360,
+      "h": 56,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "loading_panel_base_bow",
+      "x": 290,
+      "y": 187,
+      "w": 190,
+      "h": 86,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "loading_progress_track",
+      "x": 2,
+      "y": 428,
+      "w": 60,
+      "h": 50,
+      "border": [
+        26,
+        21,
+        26,
+        21
+      ]
+    },
+    {
+      "name": "loading_panel_base_top",
+      "x": 2,
+      "y": 369,
+      "w": 85,
+      "h": 34,
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

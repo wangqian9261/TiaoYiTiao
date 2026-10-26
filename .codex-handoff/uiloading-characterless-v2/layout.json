@@ -1,0 +1,228 @@
+{
+  "version": 1,
+  "canvas": [
+    750,
+    1334
+  ],
+  "source_size": [
+    941,
+    1672
+  ],
+  "coordinate_origin": "top-left",
+  "background": {
+    "file": "assets/loading_background.png",
+    "size": [
+      750,
+      1334
+    ],
+    "layer": 0,
+    "adaptation": "uniform scale to cover, centered crop; never nonuniform stretch"
+  },
+  "assets": [
+    {
+      "id": "loading_logo",
+      "file": "assets/loading_logo.png",
+      "position_xy": [
+        76,
+        105
+      ],
+      "size": [
+        606,
+        306
+      ],
+      "layer": 1,
+      "contains_text": true,
+      "role": "固定游戏名称及标语；保留为品牌美术字",
+      "source_crop_xyxy": [
+        26,
+        16,
+        1739,
+        858
+      ],
+      "nine_slice_lbrt": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserve_aspect": true
+    },
+    {
+      "id": "loading_panel_base",
+      "file": "assets/loading_panel_base.png",
+      "position_xy": [
+        52,
+        1033
+      ],
+      "size": [
+        640,
+        222
+      ],
+      "layer": 2,
+      "contains_text": false,
+      "role": "无字加载卡片；蝴蝶结/珍珠/侧花为静态装饰",
+      "source_crop_xyxy": [
+        7,
+        8,
+        2166,
+        709
+      ],
+      "nine_slice_lbrt": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserve_aspect": true
+    },
+    {
+      "id": "loading_progress_track",
+      "file": "assets/loading_progress_track.png",
+      "position_xy": [
+        128,
+        1155
+      ],
+      "size": [
+        404,
+        46
+      ],
+      "layer": 3,
+      "contains_text": false,
+      "role": "空进度轨道",
+      "source_crop_xyxy": [
+        65,
+        268,
+        2095,
+        460
+      ],
+      "nine_slice_lbrt": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserve_aspect": true
+    },
+    {
+      "id": "loading_progress_fill",
+      "file": "assets/loading_progress_fill.png",
+      "position_xy": [
+        135,
+        1162
+      ],
+      "size": [
+        390,
+        32
+      ],
+      "layer": 4,
+      "contains_text": false,
+      "role": "满幅填充条，Image.Filled水平从左裁切",
+      "source_crop_xyxy": [
+        66,
+        277,
+        2106,
+        447
+      ],
+      "nine_slice_lbrt": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserve_aspect": true
+    },
+    {
+      "id": "loading_progress_marker",
+      "file": "assets/loading_progress_marker.png",
+      "position_xy": [
+        0,
+        0
+      ],
+      "size": [
+        48,
+        36
+      ],
+      "layer": 5,
+      "contains_text": false,
+      "role": "花朵进度指示器，花心作为视觉锚点",
+      "source_crop_xyxy": [
+        256,
+        99,
+        1345,
+        851
+      ],
+      "nine_slice_lbrt": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "preserve_aspect": true
+    }
+  ],
+  "runtime_text": {
+    "status": {
+      "rect": [
+        180,
+        1112,
+        390,
+        36
+      ],
+      "font_size": 27,
+      "color": "#651F0D",
+      "normal": "正在进入花漾世界…",
+      "failed": "加载失败，点击重试"
+    },
+    "percentage": {
+      "rect": [
+        557,
+        1161,
+        66,
+        36
+      ],
+      "font_size": 26,
+      "color": "#651F0D"
+    }
+  },
+  "progress": {
+    "range": [
+      0,
+      1
+    ],
+    "fill": "Image.Type.Filled, Horizontal, OriginLeft; no scaleX",
+    "marker": {
+      "pivot_px": [
+        18,
+        18
+      ],
+      "x_range": [
+        135,
+        525
+      ],
+      "center_y": 1178,
+      "hide_at_zero": true
+    },
+    "percentage": "RoundToInt(Clamp01(p)*100) + %",
+    "preview": 0.65
+  },
+  "adaptation": {
+    "logo": "top-center, below system safe region",
+    "loading_group": "bottom-center, all panel/track/fill/marker/text in one parent; design bottom inset 79",
+    "scale_reference": "Respect project Canvas 1080x1920. Best use a local 750x1334 art space / uniform 1080/750 scale, without changing global scaler.",
+    "safe_area": "Runtime platform safe area and capsule rect; keep background full bleed. At 750x1334 reproduce listed positions; adapt only group anchors on tall/short screens."
+  },
+  "import": {
+    "texture_type": "Sprite Single",
+    "mesh_type": "FullRect",
+    "alpha_is_transparency": true,
+    "mipmaps": false,
+    "wrap": "Clamp",
+    "filter": "Bilinear",
+    "max_texture_size_background": 2048,
+    "max_texture_size_controls": 1024
+  },
+  "font_note": "Dynamic text uses bundled HuayangLoading SC Medium, a renamed OFL subset of Source Han Sans SC Medium. See fonts/OFL.txt. Normal/failure text and ASCII covered. Do not overwrite the Home font. Logo and tagline remain AI-rendered art.",
+  "source_note": "built-in image_gen edits, then deterministic transparent cropping/export; not lossless original layer extraction",
+  "nine_slice_note": "All zero: fixed proportion ornate panel, pearls and central bow would distort under nine-slice.",
+  "font_file": "fonts/HuayangLoading-SC-Medium.otf"
+}

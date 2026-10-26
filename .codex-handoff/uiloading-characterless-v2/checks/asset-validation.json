@@ -1,0 +1,98 @@
+{
+  "canvas_verified": true,
+  "transparent_assets": {
+    "loading_logo": {
+      "size": [
+        606,
+        306
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pixels": 54989,
+      "visible_pixels": 130447,
+      "alpha_bbox": [
+        3,
+        5,
+        603,
+        300
+      ],
+      "passed": true
+    },
+    "loading_panel_base": {
+      "size": [
+        640,
+        222
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pixels": 45684,
+      "visible_pixels": 96396,
+      "alpha_bbox": [
+        3,
+        8,
+        637,
+        214
+      ],
+      "passed": true
+    },
+    "loading_progress_track": {
+      "size": [
+        404,
+        46
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pixels": 3678,
+      "visible_pixels": 14906,
+      "alpha_bbox": [
+        3,
+        4,
+        401,
+        42
+      ],
+      "passed": true
+    },
+    "loading_progress_fill": {
+      "size": [
+        390,
+        32
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pixels": 165,
+      "visible_pixels": 12315,
+      "alpha_bbox": [
+        0,
+        0,
+        390,
+        32
+      ],
+      "passed": true
+    },
+    "loading_progress_marker": {
+      "size": [
+        48,
+        36
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pixels": 810,
+      "visible_pixels": 918,
+      "alpha_bbox": [
+        3,
+        3,
+        45,
+        32
+      ],
+      "passed": true
+    }
+  },
+  "atlas_size": [
+    1024,
+    1024
+  ],
+  "visual_review": "Rechecked source, five sprites on light/dark, and 0/65/100 percent assembly. Reused v1 image assets; refreshed previews with OFL font. Not lossless source-layer extraction.",
+  "engine_integration": "See INTEGRATION_STATUS.md and integration-result for latest verified state.",
+  "source_pixel_sha256": "0e36eaeb0272ab77f2c45738cebd6146c7be470dbd628bdfedbbb895c54db01c",
+  "source_matches_v1_pixels": true
+}

@@ -1,0 +1,54 @@
+# Unity 团结引擎项目 .gitignore（基线版）
+# 保留入库：Assets/、Packages/、ProjectSettings/、Docs/
+# 忽略：Unity 生成目录、IDE 文件、构建产物、测试结果 XML、本地工具状态
+
+# ===== Unity 生成目录 =====
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]serSettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# ===== IDE / 编辑器 =====
+.vs/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.gradle/
+ExportedObj/
+
+# ===== 构建产物 =====
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# ===== 崩溃 / 系统信息 =====
+sysinfo.txt
+crashlytics-build.properties
+
+# ===== 测试结果 XML（NUnit / Unity Test Framework）=====
+TestResult*.xml
+test-results*.xml
+*-test-results.xml
+
+Game3D001/Library/
+Game3D001/.codely-cli/
+
+# ===== 本地工具状态（Codely CLI 设置与 UnityInsight 索引缓存）=====
+.codely-cli/

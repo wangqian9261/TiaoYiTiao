@@ -1,0 +1,49 @@
+ManifestFileVersion: 0
+CRC: 1621465348
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 0a45e4369d3d27bcb47271191526130f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 67604d322424ef230c0846061a540a6a
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 0a45e4369d3d27bcb47271191526130f
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: f7ed93d241c7e457db3036dcd426e7fd, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/GameRes/Jump/Character/Pawn/huayang_pawn_animated.fbx
+- Assets/GameRes/Jump/Character/jump_character.prefab
+- Assets/GameRes/Jump/Character/Pawn/Pawn.mat
+- Assets/GameRes/Jump/Character/Pawn/pawn_unity_metallic_smoothness.png
+- Assets/GameRes/Jump/Character/Pawn/pawn_basecolor.png
+- Assets/GameRes/Jump/Character/Pawn/Pawn.controller
+Dependencies: []
