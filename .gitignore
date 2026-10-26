@@ -48,7 +48,11 @@ test-results*.xml
 *-test-results.xml
 
 Game3D001/Library/
+Game3D001/.codely/
+Game3D001/.codely.packages/
 Game3D001/.codely-cli/
+Game3D001/.codex-handoff/
+
 
 # ===== 本地工具状态（Codely CLI 设置与 UnityInsight 索引缓存）=====
 .codely-cli/
